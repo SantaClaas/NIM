@@ -7,6 +7,7 @@ namespace NIM.Blazor
     {
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddScoped<ViewModels.NimViewModel>();
         }
 
         public void Configure(IComponentsApplicationBuilder app)
