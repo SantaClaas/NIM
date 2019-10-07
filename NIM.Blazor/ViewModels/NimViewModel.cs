@@ -7,6 +7,6 @@ namespace NIM.Blazor.ViewModels
 {
     public class NimViewModel
     {
-        public int[] Rows { get; set; } = new int[] { 1, 2, 3, 4 };
+        public int[] Rows { get; set; } = new int[] { 7,8 };
     }
 }

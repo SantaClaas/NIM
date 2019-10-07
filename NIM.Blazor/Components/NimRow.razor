@@ -1,9 +1,13 @@
-﻿<div class="d-flex">
-    @for (int i = 0; i <= Count; i++)
-    {
-        <img src="https://cdn.pixabay.com/photo/2016/10/05/19/08/match-1717377_960_720.png" width="200" height="200" />
-    }
-    <button class="btn btn-info" @onclick="Take">Take</button>
+﻿<div class="row">
+    <div class="col-8" style="height: 18rem">
+        @for (int i = 0; i <= Count; i++)
+        {
+            <img src="https://cdn.pixabay.com/photo/2016/10/05/19/08/match-1717377_960_720.png" class="img-fluid" width="20" height="20" />
+        }
+    </div>
+    <div class="col-4">
+        <button class="btn btn-info" @onclick="Take">Take</button>
+    </div>
 </div>
 @code {
 

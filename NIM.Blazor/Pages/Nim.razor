@@ -2,12 +2,12 @@
 @inject ViewModels.NimViewModel NimViewModel
 
 <h1>Nim game</h1>
-<div class="col-md-3">
+
     @foreach (int row in NimViewModel.Rows)
     {
         <NIM.Blazor.Components.NimRow Count="@row"/>
     }
-</div>
+
 @code {
     int currentCount = 0;
 
