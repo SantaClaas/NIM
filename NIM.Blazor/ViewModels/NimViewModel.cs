@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-
-namespace NIM.Blazor.ViewModels
+﻿namespace NIM.Blazor.ViewModels
 {
     public class NimViewModel
     {
