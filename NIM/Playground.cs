@@ -26,6 +26,11 @@ namespace NIM
             return new Playground(Rows.Select((s, i) => s - move.ChangesPerRow[i]));
         }
 
+        public override string ToString()
+        {
+            return $"Field: {string.Join(", ",Rows)}";
+        }
+
         public bool Equals(Playground other)
         {
             if (ReferenceEquals(null, other))

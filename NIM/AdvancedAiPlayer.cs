@@ -52,6 +52,11 @@ namespace NIM
             _gameTree = teacher._gameTree;
         }
 
+        public override string ToString()
+        {
+            return $"AI Player {Name}, Difficulty {Math.Round(_difficulty, 3)}";
+        }
+
         /// <inheritdoc cref="Player.DecideNextMove"/>
         public override Move DecideNextMove(Rules rules, Playground playground)
         {
@@ -60,7 +65,7 @@ namespace NIM
 
             List<Node> entryPoints = _gameTree.Find(n => n.Playground.Equals(playground));
 
-            List<Tuple<Move, float>> chances = new List<Tuple<Move, float>>();
+            Dictionary<Move, float> chances = new Dictionary<Move, float>();
 
             float weight = Math.Abs(_difficulty);
 
@@ -68,20 +73,23 @@ namespace NIM
             {
                 foreach (KeyValuePair<Move, Node> choice in node.Children)
                 {
-                    float chance = choice.Value.Evaluate(node.Player);
-
-                    if (_difficulty < 0)
-                        chance = 1f - chance;
+                    float chance = choice.Value.Evaluate(node.Player, _difficulty < 0);
 
                     chance = (float)_random.NextDouble() * (1f - weight) + chance * weight;
 
-                    chances.Add(new Tuple<Move, float>(choice.Key, chance));
+                    if (!chances.ContainsKey(choice.Key))
+                    {
+                        chances[choice.Key] = chance;
+                        continue;
+                    }
+
+                    if (chances[choice.Key] < chance)
+                        chances[choice.Key] = chance;
                 }
             }
 
-            chances.Sort((a, b) => a.Item2.CompareTo(b.Item2));
-
-            return chances.First().Item1;
+            List<KeyValuePair<Move, float>> keyValuePairs = chances.OrderBy(p => p.Value).ThenBy(p => p.Key.ChangesPerRow.Sum()).ToList();
+            return keyValuePairs.Last().Key;
         }
     }
 
@@ -151,14 +159,14 @@ namespace NIM
             return matches;
         }
 
-        public float Evaluate(int player)
+        public float Evaluate(int player, bool invertCondition)
         {
             if (_children.Count == 0)
-                return Rules.LastMoveWins ^ Player != player
+                return (Rules.LastMoveWins ^ invertCondition) ^ (Player + (Rules.PlayerCount - 1)) % Rules.PlayerCount != player
                     ? 1f
                     : 0f;
 
-            List<float> childEvaluations = _children.Values.Select(n => n.Evaluate(player)).ToList();
+            List<float> childEvaluations = _children.Values.Select(n => n.Evaluate(player, invertCondition)).ToList();
 
             if (Player == player && childEvaluations.Contains(1f))
                 return 1f;

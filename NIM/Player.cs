@@ -19,6 +19,11 @@ namespace NIM
         /// <returns></returns>
         public abstract Move DecideNextMove(Rules rules, Playground playground);
 
+        public override string ToString()
+        {
+            return $"Player {Name}";
+        }
+
         public bool Equals(Player other)
         {
             if (ReferenceEquals(null, other)) return false;
