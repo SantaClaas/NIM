@@ -66,17 +66,13 @@ namespace NIM
             List<Node> entryPoints = _gameTree.Find(n => n.Playground.Equals(playground));
 
             Dictionary<Move, float> chances = new Dictionary<Move, float>();
-
-            float weight = Math.Abs(_difficulty);
-
+            
             foreach (Node node in entryPoints)
             {
                 foreach (KeyValuePair<Move, Node> choice in node.Children)
                 {
                     float chance = choice.Value.Evaluate(node.Player, _difficulty < 0);
-
-                    chance = (float)_random.NextDouble() * (1f - weight) + chance * weight;
-
+                    
                     if (!chances.ContainsKey(choice.Key))
                     {
                         chances[choice.Key] = chance;
@@ -87,6 +83,10 @@ namespace NIM
                         chances[choice.Key] = chance;
                 }
             }
+
+            float weight = Math.Abs(_difficulty);
+            foreach (Move move in chances.Keys.ToList())
+                chances[move] = (float) _random.NextDouble() * (1f - weight) + chances[move] * weight;
 
             List<KeyValuePair<Move, float>> keyValuePairs = chances.OrderBy(p => p.Value).ThenBy(p => p.Key.ChangesPerRow.Sum()).ToList();
             return keyValuePairs.Last().Key;
