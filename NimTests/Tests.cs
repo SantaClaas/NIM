@@ -169,6 +169,19 @@ namespace NimTests
         }
 
         [Test]
+        public void Test_AdvancedAi()
+        {
+            AdvancedAiPlayer playerA = new AdvancedAiPlayer("A", Rules.Default);
+            AdvancedAiPlayer playerB = new AdvancedAiPlayer("B", playerA);
+
+            Game game = new Game(Rules.Default, new[] { playerA, playerB});
+
+            List<Player> players = game.Loop();
+
+            Assert.AreEqual(1, players.Count);
+        }
+
+        [Test]
         public void Test_Game_FullRun()
         {
             Rules rules = Rules.Build(new[] { 1, 2 }).LastMoveWins().Players(2).AddRules(new Move(new[] { 1, 0 }), new Move(new[] { 0, 1 })).Create();
