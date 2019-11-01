@@ -171,14 +171,27 @@ namespace NimTests
         [Test]
         public void Test_AdvancedAi()
         {
-            AdvancedAiPlayer playerA = new AdvancedAiPlayer("A", Rules.Default);
-            AdvancedAiPlayer playerB = new AdvancedAiPlayer("B", playerA);
+            AdvancedAiPlayer playerA = new AdvancedAiPlayer("A", 1f, Rules.Default);
+            AdvancedAiPlayer playerB = new AdvancedAiPlayer("B", 1f, playerA);
 
-            Game game = new Game(Rules.Default, new[] { playerA, playerB});
+            Game game = new Game(Rules.Default, new[] { playerA, playerB });
 
             List<Player> players = game.Loop();
 
             Assert.AreEqual(1, players.Count);
+            Assert.AreSame(playerB, players[0]);
+
+
+
+            playerA = new AdvancedAiPlayer("A", 1f, Rules.Default);
+            playerB = new AdvancedAiPlayer("B", -1f, playerA);
+
+            game = new Game(Rules.Default, new[] { playerA, playerB });
+
+            players = game.Loop();
+
+            Assert.AreEqual(1, players.Count);
+            Assert.AreSame(playerA, players[0]);
         }
 
         [Test]

@@ -11,21 +11,48 @@ namespace NIM
 
         private Node _gameTree;
 
-        public AdvancedAiPlayer(string name) : base(name)
+        private readonly float _difficulty;
+
+        /// <summary>
+        /// Creates a new AI Player
+        /// </summary>
+        /// <param name="name">The name for this player. Also used as seed for the internal randomization</param>
+        /// <param name="difficulty">The difficulty level of this AI player. May range anywhere from 1 to -1, where 1 results in the best, 0 in random and -1 in the worst possible choices</param>
+        public AdvancedAiPlayer(string name, float difficulty) : base(name)
         {
             _random = new Random(name.GetHashCode());
+
+            if (difficulty > 1f)
+                _difficulty = 1f;
+            else if (difficulty < -1f)
+                _difficulty = -1f;
+            else
+                _difficulty = difficulty;
         }
 
-        public AdvancedAiPlayer(string name, Rules rules) : this(name)
+        /// <summary>
+        /// Creates a new AI Player
+        /// </summary>
+        /// <param name="name">The name for this player. Also used as seed for the internal randomization</param>
+        /// <param name="difficulty">The difficulty level of this AI player. May range anywhere from 1 to -1, where 1 results in the best, 0 in random and -1 in the worst possible choices</param>
+        /// <param name="rules">The rules to initialize the player with. Pre-loads the decision tree</param>
+        public AdvancedAiPlayer(string name, float difficulty, Rules rules) : this(name, difficulty)
         {
             _gameTree = Node.CalcGameTree(rules);
         }
 
-        public AdvancedAiPlayer(string name, AdvancedAiPlayer teacher) : this(name)
+        /// <summary>
+        /// Creates a new AI Player
+        /// </summary>
+        /// <param name="name">The name for this player. Also used as seed for the internal randomization</param>
+        /// <param name="difficulty">The difficulty level of this AI player. May range anywhere from 1 to -1, where 1 results in the best, 0 in random and -1 in the worst possible choices</param>
+        /// <param name="teacher">An existing AI Player to copy the decision tree from</param>
+        public AdvancedAiPlayer(string name, float difficulty, AdvancedAiPlayer teacher) : this(name, difficulty)
         {
             _gameTree = teacher._gameTree;
         }
 
+        /// <inheritdoc cref="Player.DecideNextMove"/>
         public override Move DecideNextMove(Rules rules, Playground playground)
         {
             if (_gameTree is null || rules != _gameTree.Rules)
@@ -33,17 +60,28 @@ namespace NIM
 
             List<Node> entryPoints = _gameTree.Find(n => n.Playground.Equals(playground));
 
-            List<Move> moves = new List<Move>();
+            List<Tuple<Move, float>> chances = new List<Tuple<Move, float>>();
+
+            float weight = Math.Abs(_difficulty);
 
             foreach (Node node in entryPoints)
+            {
                 foreach (KeyValuePair<Move, Node> choice in node.Children)
-                    if (choice.Value.IsWinningBranch(node.Player))
-                        moves.Add(choice.Key);
+                {
+                    float chance = choice.Value.Evaluate(node.Player);
 
-            if (moves.Count == 0)
-                moves = rules.GetValidMoves(playground);
+                    if (_difficulty < 0)
+                        chance = 1f - chance;
 
-            return moves[_random.Next(moves.Count)];
+                    chance = (float)_random.NextDouble() * (1f - weight) + chance * weight;
+
+                    chances.Add(new Tuple<Move, float>(choice.Key, chance));
+                }
+            }
+
+            chances.Sort((a, b) => a.Item2.CompareTo(b.Item2));
+
+            return chances.First().Item1;
         }
     }
 
@@ -113,14 +151,19 @@ namespace NIM
             return matches;
         }
 
-        public bool IsWinningBranch(int player)
+        public float Evaluate(int player)
         {
             if (_children.Count == 0)
-                return Rules.LastMoveWins ^ Player != player;
+                return Rules.LastMoveWins ^ Player != player
+                    ? 1f
+                    : 0f;
 
-            return Player == player
-                ? _children.Values.Any(n => n.IsWinningBranch(player))
-                : _children.Values.All(n => n.IsWinningBranch(player));
+            List<float> childEvaluations = _children.Values.Select(n => n.Evaluate(player)).ToList();
+
+            if (Player == player && childEvaluations.Contains(1f))
+                return 1f;
+
+            return childEvaluations.Average();
         }
     }
 }
