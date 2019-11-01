@@ -171,7 +171,11 @@ namespace NimTests
         [Test]
         public void Test_Game_FullRun()
         {
-            Rules rules = Rules.Build(new[] { 1, 2 }).LastMoveWins().Players(2).AddRules(new Move(new[] { 1, 0 }), new Move(new[] { 0, 1 })).Create();
+            Rules rules = Rules
+                .Build(new[] { 1, 2 })
+                .LastMoveWins()
+                .Players(2)
+                .AddRules(new Move(new[] { 1, 0 }), new Move(new[] { 0, 1 })).Create();
 
             Game game = new Game(rules, new[] { new AiPlayerFirst("A"), new AiPlayerFirst("B") });
 

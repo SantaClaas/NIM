@@ -1,2 +1,22 @@
 ﻿@page "/"
-<Nim/>
+@using Models
+<form>
+    <div class="form-group">
+        <label for="player1Name">Player 1:</label>
+        <input type="text" class="form-control" id="player1Name" placeholder="Player 1" />
+
+        <label for="player2Name">Player 2:</label>
+        <input type="text" class="form-control" id="player2Name" placeholder="Player 2" disabled/>
+        <div class="form-group form-check">
+            <input type="checkbox" class="form-check-input" id="checkAiPlayer" />
+            <label class="form-check-label" for="checkAiPlayer">Ai Player</label>
+        </div>
+    </div>
+    <button type="submit" class="btn btn-primary" @onsubmit="@OnSubmit">Submit</button>
+</form>
+@code{
+    void OnSubmit()
+    {
+
+    }
+}

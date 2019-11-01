@@ -1,0 +1,44 @@
+﻿@page "/"
+@using Models
+@inject Rules rules
+@inject NavigationManager navigationManager
+@inject GameState gameState
+@if (gameState.IsInitialized)
+{
+    <Nim />
+}
+else
+{
+    <form>
+        <div class="form-group">
+            <label for="player1Name">Player 1:</label>
+            <input type="text" class="form-control" id="player1Name" placeholder="Player 1" @bind="player1Name" />
+
+            <label for="player2Name">Player 2:</label>
+            <input type="text" class="form-control" id="player2Name" placeholder="Player 2" disabled="@isAiPlayer" />
+            <div class="form-group form-check">
+                <input type="checkbox" class="form-check-input" id="checkAiPlayer" @bind="isAiPlayer" />
+                <label class="form-check-label" for="checkAiPlayer">Ai Player</label>
+            </div>
+        </div>
+    </form>
+    <button class="btn btn-primary" @onclick="@OnSubmit">Submit</button>
+
+}
+@code{
+    private string player1Name;
+    private string player2Name;
+    private bool isAiPlayer = false;
+
+    void OnSubmit()
+    {
+        var players = new[]
+        {
+            new Human(player1Name),
+            isAiPlayer ? new AiPlayerFirst("Computer") : new Human(player2Name) as Player,
+        };
+
+        gameState.Game = new Game(rules, players);
+        navigationManager.NavigateTo("nim");
+    }
+}
