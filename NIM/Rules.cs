@@ -158,7 +158,7 @@ namespace NIM
                 {
                     foreach (T item in list)
                     {
-                        foreach (IEnumerable<T> permutation in Permutations<T>(list.Where(i => !i.Equals(item))))
+                        foreach (IEnumerable<T> permutation in Permutations(list.Where(i => !i.Equals(item))))
                             yield return permutation.Prepend(item);
                     }
                 }

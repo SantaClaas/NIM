@@ -65,7 +65,7 @@ namespace NIM
 
         private Player ChooseNextPlayer()
         {
-            _currentPlayerIndex = (++_currentPlayerIndex) % _players.Count;
+            _currentPlayerIndex = (_currentPlayerIndex + 1) % _players.Count;
             return CurrentPlayer;
         }
 

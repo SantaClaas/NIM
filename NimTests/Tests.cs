@@ -169,6 +169,59 @@ namespace NimTests
         }
 
         [Test]
+        public void Test_AdvancedAi()
+        {
+            AdvancedAiPlayer teacher=new AdvancedAiPlayer("Teacher",0f,Rules.Default);
+
+
+            AdvancedAiPlayer playerA = new AdvancedAiPlayer("A", 1f, teacher);
+            AdvancedAiPlayer playerB = new AdvancedAiPlayer("B", 1f, teacher);
+
+            Game game = new Game(Rules.Default, new[] { playerA, playerB });
+
+            List<Player> players = game.Loop();
+
+            Assert.AreEqual(1, players.Count);
+            Assert.AreSame(playerB, players[0]);
+
+
+
+            playerA = new AdvancedAiPlayer("A", -1f, teacher);
+            playerB = new AdvancedAiPlayer("B", 1f, teacher);
+
+            game = new Game(Rules.Default, new[] { playerA, playerB });
+
+            players = game.Loop();
+
+            Assert.AreEqual(1, players.Count);
+            Assert.AreSame(playerB, players[0]);
+
+
+
+            playerA = new AdvancedAiPlayer("A", 1f, teacher);
+            playerB = new AdvancedAiPlayer("B", -1f, teacher);
+
+            game = new Game(Rules.Default, new[] { playerA, playerB });
+
+            players = game.Loop();
+
+            Assert.AreEqual(1, players.Count);
+            Assert.AreSame(playerA, players[0]);
+
+
+
+            playerA = new AdvancedAiPlayer("A", -1f, teacher);
+            playerB = new AdvancedAiPlayer("B", -1f, teacher);
+
+            game = new Game(Rules.Default, new[] { playerA, playerB });
+
+            players = game.Loop();
+
+            Assert.AreEqual(1, players.Count);
+            Assert.AreSame(playerA, players[0]);
+        }
+
+        [Test]
         public void Test_Game_FullRun()
         {
             Rules rules = Rules

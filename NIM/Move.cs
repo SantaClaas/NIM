@@ -16,6 +16,11 @@ namespace NIM
             ChangesPerRow = Array.AsReadOnly(changesPerRow.ToArray());
         }
 
+        public override string ToString()
+        {
+            return $"Changes: {string.Join(", ", ChangesPerRow)}";
+        }
+
         public bool Equals(Move other)
         {
             if (ReferenceEquals(null, other))
