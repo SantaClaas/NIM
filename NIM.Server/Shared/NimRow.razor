@@ -16,6 +16,7 @@
     public int RowNumber { get; set; }
     [Parameter]
     public int Count { get; set; }
+
     bool CanTake
     {
         get
@@ -33,6 +34,7 @@
         --Count;
         ++gameState.CurrentMove[RowNumber];
         this.StateHasChanged();
+     
     }
 
     bool CanRemove()

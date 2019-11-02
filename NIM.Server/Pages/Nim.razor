@@ -1,18 +1,26 @@
 ﻿@page "/nim"
 @inject NavigationManager navigationManager
 @inject GameState gameState
+@inject Rules rules
 <h1>Nim game</h1>
 <h2>Current player: @gameState.Game.CurrentPlayer.Name</h2>
 @for (int i = 0; i < gameState.Game.CurrentPlayground.Rows.Count; ++i)
 {
-    <NIM.Server.Shared.NimRow Count="@gameState.Game.CurrentPlayground.Rows[i]" RowNumber="i"/>
+    <NIM.Server.Shared.NimRow Count="@gameState.Game.CurrentPlayground.Rows[i]" RowNumber="i" />
 }
 
 <div class="row justify-content-end">
-    <button class="btn btn-info" @onclick="@EndTurn">End turn</button>
+    <button class="btn btn-info" @onclick="@EndTurn" disabled="@CanEnd">End turn</button>
 </div>
 @code {
-    int currentCount = 0;
+
+    bool CanEnd
+    {
+        get
+        {
+          return  rules.IsMoveValid(new Move(gameState.CurrentMove),gameState.Game.CurrentPlayground);
+        }
+    }
     protected override void OnInitialized()
     {
         Reset();
@@ -20,6 +28,8 @@
 
     void Reset()
     {
+        if (gameState.Game.State == NIM.GameState.GameOver)
+            navigationManager.NavigateTo("gameover");
         gameState.CurrentMove = new int[gameState.Game.CurrentPlayground.Rows.Count];
         if (!(gameState.Game.CurrentPlayer is Models.Human human))
             EndTurn();
@@ -27,7 +37,7 @@
 
     void EndTurn()
     {
-        if(gameState.Game.CurrentPlayer is Models.Human human)
+        if (gameState.Game.CurrentPlayer is Models.Human human)
         {
             human.NextMove = gameState.CurrentMove;
         }
@@ -36,9 +46,9 @@
         // apply move
         gameState.Game.Step();
         // check conditions and if it returns false game is over and navigate to winning page
-        if(!gameState.Game.Step())
+        if (!gameState.Game.Step())
         {
-            // todo
+            navigationManager.NavigateTo("gameover");
         }
         gameState.CurrentMove = new int[gameState.Game.CurrentPlayground.Rows.Count];
         // choose player
