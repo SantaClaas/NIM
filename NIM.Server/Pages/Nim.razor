@@ -3,9 +3,9 @@
 @inject GameState gameState
 <h1>Nim game</h1>
 <h2>Current player: @gameState.Game.CurrentPlayer.Name</h2>
-@foreach (int row in gameState.Game.CurrentPlayground.Rows)
+@for (int i = 0; i < gameState.Game.CurrentPlayground.Rows.Count; ++i)
 {
-    <NIM.Server.Shared.NimRow Count="@row" />
+    <NIM.Server.Shared.NimRow Count="@gameState.Game.CurrentPlayground.Rows[i]" RowNumber="i"/>
 }
 
 <div class="row justify-content-end">
@@ -15,20 +15,36 @@
     int currentCount = 0;
     protected override void OnInitialized()
     {
-        gameState.Game.Step();
+        Reset();
     }
 
-    void IncrementCount()
+    void Reset()
     {
-        currentCount++;
+        gameState.CurrentMove = new int[gameState.Game.CurrentPlayground.Rows.Count];
+        if (!(gameState.Game.CurrentPlayer is Models.Human human))
+            EndTurn();
     }
 
     void EndTurn()
     {
+        if(gameState.Game.CurrentPlayer is Models.Human human)
+        {
+            human.NextMove = gameState.CurrentMove;
+        }
+        // get move
+        gameState.Game.Step();
+        // apply move
+        gameState.Game.Step();
+        // check conditions and if it returns false game is over and navigate to winning page
+        if(!gameState.Game.Step())
+        {
+            // todo
+        }
+        gameState.CurrentMove = new int[gameState.Game.CurrentPlayground.Rows.Count];
+        // choose player
+        gameState.Game.Step();
 
+        Reset();
     }
-    void Take()
-    {
 
-    }
 }

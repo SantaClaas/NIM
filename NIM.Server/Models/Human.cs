@@ -6,11 +6,15 @@ namespace NIM.Server.Models
     {
         public Human(string name) : base(name)
         {
+            
         }
+        public int[] NextMove { get; set; }
 
         public override Move DecideNextMove(Rules rules, Playground playground)
         {
-            throw new NotImplementedException();
+            return new Move(NextMove);
         }
+
+      
     }
 }

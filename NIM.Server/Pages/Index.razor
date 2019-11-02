@@ -40,5 +40,7 @@ else
 
         gameState.Game = new Game(rules, players);
         navigationManager.NavigateTo("nim");
+        // get move
+        gameState.Game.Step();
     }
 }

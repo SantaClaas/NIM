@@ -1,4 +1,6 @@
-﻿<div class="row">
+﻿@inject GameState gameState
+@inject Rules rules
+<div class="row">
     <div class="col-8 p-2" style="height: 10rem">
         @for (int i = 0; i <= Count; i++)
         {
@@ -6,17 +8,38 @@
         }
     </div>
     <div class="col-4">
-        <button class="btn btn-info" @onclick="Take">Take</button>
+        <button class="btn btn-info" @onclick="Take" disabled="@CanTake"><i class="oi oi-minus" /></button>
     </div>
 </div>
 @code {
-
+    [Parameter]
+    public int RowNumber { get; set; }
     [Parameter]
     public int Count { get; set; }
+    bool CanTake
+    {
+        get
+        {
+            int[] futureMove = gameState.CurrentMove.Clone() as int[];
+            --futureMove[RowNumber];
+            
+            return rules.IsMoveValid(new Move(futureMove),gameState.Game.CurrentPlayground);
+        }
+    }
+    bool CanAdd = false;
 
     void Take()
     {
         --Count;
+        ++gameState.CurrentMove[RowNumber];
         this.StateHasChanged();
+    }
+
+    bool CanRemove()
+    {
+        int[] futureMove = gameState.CurrentMove.Clone() as int[];
+        --futureMove[RowNumber];
+
+        return rules.ValidMoves.Contains(new Move(futureMove));
     }
 }

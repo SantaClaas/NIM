@@ -60,8 +60,9 @@ namespace NIM.Server
     }
     public class GameState
     {
+        public int[] CurrentMove { get; set; }
         public bool IsInitialized => Game != null;
         public Game Game { get; set; }
-        
+
     }
 }
