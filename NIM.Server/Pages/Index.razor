@@ -9,33 +9,100 @@
 }
 else
 {
-    <form>
-        <div class="form-group">
-            <label for="player1Name">Player 1:</label>
-            <input type="text" class="form-control" id="player1Name" placeholder="Player 1" @bind="player1Name" />
+    <div class="row justify-content-center">
+        <div class="col col-lg-3 col-md-5 col-sm-10">
+            <form>
+                <div class="form-group">
+                    <label for="player1Name">Player 1:</label>
+                    <input type="text" class="form-control" id="player1Name" placeholder="Player 1" @bind="player1Name" />
 
-            <label for="player2Name">Player 2:</label>
-            <input type="text" class="form-control" id="player2Name" placeholder="Player 2" disabled="@isAiPlayer" @bind="player2Name"/>
-            <div class="form-group form-check">
-                <input type="checkbox" class="form-check-input" id="checkAiPlayer" @bind="isAiPlayer" />
-                <label class="form-check-label" for="checkAiPlayer">Ai Player</label>
-            </div>
+                    @if (!isAiPlayer)
+                    {
+                        <label for="player2Name">Player 2:</label>
+                        <input type="text" class="form-control" id="player2Name" placeholder="Player 2" disabled="@isAiPlayer" @bind="player2Name" />
+                    }
+                    else
+                    {
+                        if (SelectedAiPlayer is AdvancedAiPlayer a)
+                        {
+                            <div class="row">
+                                <div class="col col-8">
+                                    <label for="difficulty">Difficulty:</label>
+                                    <select id="difficulty" class="form-control " @onchange="AiPlayerChange">
+                                        @for (int i = 0; i < AiPlayers.Count; ++i)
+                                        {
+                                            <option value="@i">@AiPlayers[i].Name</option>
+                                        }
+                                    </select>
+                                </div>
+                                <div class="col col-4">
+                                    <label for="difficultyPlayer">Level:</label>
+                                    <input type="number" class="form-control" id="difficultyPlayer" max="1" min="-1" step="0.10" @bind="difficultyAdvancedAi" />
+                                </div>
+                            </div>
+                        }
+                        else
+                        {
+                            <label for="difficulty">Difficulty:</label>
+                            <select id="difficulty" class="form-control " @onchange="AiPlayerChange">
+                                @for (int i = 0; i < AiPlayers.Count; ++i)
+                                {
+                                    <option value="@i">@AiPlayers[i].Name</option>
+                                }
+                            </select>
+
+                        }
+                    }
+                    <div class="form-group form-check">
+                        <input type="checkbox" class="form-check-input" id="checkAiPlayer" @bind="isAiPlayer" @onclick="OnClick" />
+                        <label class="form-check-label" for="checkAiPlayer">Ai Player</label>
+                    </div>
+                </div>
+            </form>
+            <button class="btn btn-primary" @onclick="@OnSubmit">Submit</button>
         </div>
-    </form>
-    <button class="btn btn-primary" @onclick="@OnSubmit">Submit</button>
-
+    </div>
 }
 @code{
     private string player1Name;
     private string player2Name;
     private bool isAiPlayer = false;
+    private Player SelectedAiPlayer;
+    private float difficultyAdvancedAi = 0f;
+
+    List<Player> AiPlayers = new List<Player>
+{
+        new AiPlayerFirst("Computer First"),
+        new AiPlayerSimple("Computer Simple"),
+        new AiPlayerRandom("Computer Random"),
+        new AdvancedAiPlayer("Computer Advanced",0)
+    };
+
+    void AiPlayerChange(ChangeEventArgs e)
+    {
+        if (int.TryParse(e.Value as string, out int i))
+            SelectedAiPlayer = AiPlayers[i] switch
+            {
+                AiPlayerFirst first => first,
+                AiPlayerSimple simple => simple,
+                AiPlayerRandom random => random,
+                AdvancedAiPlayer _ => new AdvancedAiPlayer("Computer Advanced", difficultyAdvancedAi),
+                _ => new AiPlayerFirst("Computer")
+            };
+    }
+
+    void OnClick()
+    {
+        SelectedAiPlayer = AiPlayers[0];
+        this.StateHasChanged();
+    }
 
     void OnSubmit()
     {
         var players = new[]
         {
             new Human(player1Name ?? "Player 1"),
-            isAiPlayer ? new AiPlayerFirst("Computer") : new Human(player2Name ?? "Player 2") as Player,
+            isAiPlayer ? SelectedAiPlayer : new Human(player2Name ?? "Player 2") as Player,
         };
 
         gameState.Game = new Game(rules, players);
