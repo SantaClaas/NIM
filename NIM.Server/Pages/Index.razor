@@ -1,34 +1,37 @@
 ﻿@page "/"
+@page "/index"
 @using Models
 @inject Rules rules
 @inject NavigationManager navigationManager
 @inject GameState gameState
-@if (gameState.IsInitialized)
+@if (gameState.IsInitialized && gameState.Game.State == NIM.GameState.GameOver)
 {
-    <Nim />
-}
-else
-{
-    <div class="row justify-content-center">
-        <h1>New Game</h1>
+    <div class="alert alert-success">
+        Congratulations @(string.Join(',', gameState.Game.GetWinningPlayers().Select(p => p.Name))) you won!
     </div>
-    <div class="row justify-content-center">
-        <div class="col col-lg-3 col-md-5 col-sm-10">
-            <form>
-                @for (int i = 0; i < PossiblePlayers.Count; ++i)
-                {
-                    <div class="form-group">
-                        <PlayerSelector Number="i" Model="PossiblePlayers[i]" OnAiPlayerChange="OnAiPlayerChange" OnClick="OnClick" OnLevelChange="OnLevelChange" AddNew="AddNew" />
-                    </div>
+}
 
-                }
-            </form>
-            <button class="btn btn-success" @onclick="AddNew">Add Player</button>
-            <button class="btn btn-danger" @onclick="RemoveLatest">Remove Player</button>
-            <button class="btn btn-primary" @onclick="@OnSubmit">Submit</button>
-        </div>
+<div class="row justify-content-center">
+    <h1>New Game</h1>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col col-lg-3 col-md-5 col-sm-10">
+        <form>
+            @for (int i = 0; i < PossiblePlayers.Count; ++i)
+            {
+                <div class="form-group">
+                    <PlayerSelector Number="i" Model="PossiblePlayers[i]" OnAiPlayerChange="OnAiPlayerChange" OnClick="OnClick" OnLevelChange="OnLevelChange" AddNew="AddNew" />
+                </div>
+
+            }
+        </form>
+        <button class="btn btn-success" @onclick="AddNew">Add Player</button>
+        <button class="btn btn-danger" @onclick="RemoveLatest">Remove Player</button>
+        <button class="btn btn-primary" @onclick="@OnSubmit">Submit</button>
     </div>
-}
+</div>
+
 @code{
     private List<Player> ValidAiPlayers { get; set; }
     private List<PlayerSelectorModel> PossiblePlayers { get; set; }

@@ -46,7 +46,7 @@
     void Reset()
     {
         if (gameState.Game.State == NIM.GameState.GameOver)
-            navigationManager.NavigateTo("gameover");
+            navigationManager.NavigateTo("/");
         gameState.CurrentMove = new int[gameState.Game.CurrentPlayground.Rows.Count];
         //Array.Copy(gameState.Game.CurrentPlayground.Rows, State);
         gameState.Field = gameState.Game.CurrentPlayground.Rows.ToArray();
@@ -67,7 +67,7 @@
         // check conditions and if it returns false game is over and navigate to winning page
         if (!gameState.Game.Step())
         {
-            navigationManager.NavigateTo("gameover");
+            navigationManager.NavigateTo("/");
         }
         gameState.CurrentMove = new int[gameState.Game.CurrentPlayground.Rows.Count];
         // choose player
