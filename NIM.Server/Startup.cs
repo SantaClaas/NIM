@@ -28,8 +28,8 @@ namespace NIM.Server
             services.AddServerSideBlazor();
 
 
-            services.AddScoped(r => Rules.Default);
-            services.AddScoped<GameState>();
+            services.AddSingleton(r => Rules.Default);
+            services.AddSingleton<GameState>();
         }
         void a(int maxtake, int rows)
         {
