@@ -15,7 +15,7 @@ else
             <input type="text" class="form-control" id="player1Name" placeholder="Player 1" @bind="player1Name" />
 
             <label for="player2Name">Player 2:</label>
-            <input type="text" class="form-control" id="player2Name" placeholder="Player 2" disabled="@isAiPlayer" />
+            <input type="text" class="form-control" id="player2Name" placeholder="Player 2" disabled="@isAiPlayer" @bind="player2Name"/>
             <div class="form-group form-check">
                 <input type="checkbox" class="form-check-input" id="checkAiPlayer" @bind="isAiPlayer" />
                 <label class="form-check-label" for="checkAiPlayer">Ai Player</label>
@@ -34,8 +34,8 @@ else
     {
         var players = new[]
         {
-            new Human(player1Name),
-            isAiPlayer ? new AiPlayerFirst("Computer") : new Human(player2Name) as Player,
+            new Human(player1Name ?? "Player 1"),
+            isAiPlayer ? new AiPlayerFirst("Computer") : new Human(player2Name ?? "Player 2") as Player,
         };
 
         gameState.Game = new Game(rules, players);

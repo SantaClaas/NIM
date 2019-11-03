@@ -2,13 +2,13 @@
 @inject Rules rules
 <div class="row">
     <div class="col-8 p-2" style="height: 10rem">
-        @for (int i = 0; i <= Count; i++)
+        @for (int i = 0; i < Count; ++i)
         {
             <img src="https://cdn.pixabay.com/photo/2016/10/05/19/08/match-1717377_960_720.png" class="img-fluid" width="100" height="100" />
         }
     </div>
     <div class="col-4">
-        <button class="btn btn-info" @onclick="(() => OnTake.InvokeAsync(RowIndex))" disabled="@(!CanTake)"><i class="oi oi-minus" /></button>
+        <button class="btn btn-info" @onclick="OnClick" disabled="@(!CanTake)"><i class="oi oi-minus" /></button>
     </div>
 </div>
 @code {
@@ -20,4 +20,12 @@
     public bool CanTake { get; set; }
     [Parameter]
     public int RowIndex { get; set; }
+
+    private void OnClick(MouseEventArgs e)
+    {
+        if (!CanTake)
+            return;
+
+        OnTake.InvokeAsync(RowIndex);
+    }
 }

@@ -26,15 +26,15 @@ namespace NIM.Server
         {
             services.AddRazorPages();
             services.AddServerSideBlazor();
-            services.AddScoped(r => Rules
-                .Build(new[] { 1, 2 })
-                .LastMoveWins()
-                .Players(2)
-                .AddRules(new Move(new[] { 1, 0 }), new Move(new[] { 0, 1 }))
-                .Create());
+
+
+            services.AddScoped(r => Rules.Default);
             services.AddScoped<GameState>();
         }
-
+        void a(int maxtake, int rows)
+        {
+            
+        }
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {

@@ -28,7 +28,6 @@
         --gameState.Field[row];
         ++gameState.CurrentMove[row];
         this.StateHasChanged();
-
     }
 
     bool CanEnd
@@ -43,6 +42,7 @@
     {
         Reset();
     }
+
     void Reset()
     {
         if (gameState.Game.State == NIM.GameState.GameOver)
