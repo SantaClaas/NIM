@@ -4,33 +4,52 @@
 @inject Rules rules
 <h1>Nim game</h1>
 <h2>Current player: @gameState.Game.CurrentPlayer.Name</h2>
-@for (int i = 0; i < gameState.Game.CurrentPlayground.Rows.Count; ++i)
+@for (int i = 0; i < gameState.Field.Length; ++i)
 {
-    <NIM.Server.Shared.NimRow Count="@gameState.Game.CurrentPlayground.Rows[i]" RowNumber="i" />
+    <NIM.Server.Shared.NimRow Count="@gameState.Field[i]" OnTake="Take" CanTake="@CanTake(i)" RowIndex=i/>
 }
 
 <div class="row justify-content-end">
-    <button class="btn btn-info" @onclick="@EndTurn" disabled="@CanEnd">End turn</button>
+    <button class="btn btn-info" @onclick="@EndTurn" disabled="@(!CanEnd)">End turn</button>
 </div>
 @code {
+
+
+    bool CanTake(int row)
+    {
+        int[] futureMove = gameState.CurrentMove.Clone() as int[];
+        ++futureMove[row];
+
+        return rules.IsMoveValid(new Move(futureMove), gameState.Game.CurrentPlayground);
+    }
+
+    void Take(int row)
+    {
+        --gameState.Field[row];
+        ++gameState.CurrentMove[row];
+        this.StateHasChanged();
+
+    }
 
     bool CanEnd
     {
         get
         {
-          return  rules.IsMoveValid(new Move(gameState.CurrentMove),gameState.Game.CurrentPlayground);
+            return rules.IsMoveValid(new Move(gameState.CurrentMove), gameState.Game.CurrentPlayground);
         }
     }
+
     protected override void OnInitialized()
     {
         Reset();
     }
-
     void Reset()
     {
         if (gameState.Game.State == NIM.GameState.GameOver)
             navigationManager.NavigateTo("gameover");
         gameState.CurrentMove = new int[gameState.Game.CurrentPlayground.Rows.Count];
+        //Array.Copy(gameState.Game.CurrentPlayground.Rows, State);
+        gameState.Field = gameState.Game.CurrentPlayground.Rows.ToArray();
         if (!(gameState.Game.CurrentPlayer is Models.Human human))
             EndTurn();
     }

@@ -8,40 +8,16 @@
         }
     </div>
     <div class="col-4">
-        <button class="btn btn-info" @onclick="Take" disabled="@CanTake"><i class="oi oi-minus" /></button>
+        <button class="btn btn-info" @onclick="(() => OnTake.InvokeAsync(RowIndex))" disabled="@(!CanTake)"><i class="oi oi-minus" /></button>
     </div>
 </div>
 @code {
     [Parameter]
-    public int RowNumber { get; set; }
-    [Parameter]
     public int Count { get; set; }
-
-    bool CanTake
-    {
-        get
-        {
-            int[] futureMove = gameState.CurrentMove.Clone() as int[];
-            --futureMove[RowNumber];
-            
-            return rules.IsMoveValid(new Move(futureMove),gameState.Game.CurrentPlayground);
-        }
-    }
-    bool CanAdd = false;
-
-    void Take()
-    {
-        --Count;
-        ++gameState.CurrentMove[RowNumber];
-        this.StateHasChanged();
-     
-    }
-
-    bool CanRemove()
-    {
-        int[] futureMove = gameState.CurrentMove.Clone() as int[];
-        --futureMove[RowNumber];
-
-        return rules.ValidMoves.Contains(new Move(futureMove));
-    }
+    [Parameter]
+    public EventCallback<int> OnTake { get; set; }
+    [Parameter]
+    public bool CanTake { get; set; }
+    [Parameter]
+    public int RowIndex { get; set; }
 }
