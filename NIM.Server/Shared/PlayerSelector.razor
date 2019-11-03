@@ -3,7 +3,7 @@
 @if (!Model.IsAiPlayer)
 {
     <label for="@($"player{Model.Number + 1}Name")">@($"Player {Model.Number + 1}"):</label>
-    <input type="text" class="form-control" id="@($"player{Model.Number + 1}Name")" placeholder="@($"Player {Model.Number + 1}")" disabled="@Model.IsAiPlayer" @bind="Model.Name" @oninput="OnInput" />
+    <input type="text" class="form-control" id="@($"player{Model.Number + 1}Name")" placeholder="@($"Player {Model.Number + 1}")" disabled="@Model.IsAiPlayer" @bind="Model.Name" />
 }
 else
 {
@@ -62,20 +62,8 @@ else
     private void Click()
     {
         OnClick.InvokeAsync(Number);
-        if (!Model.IsAiPlayer)
-            AddNew.InvokeAsync(Model.Number);
-        else if (Model.IsAiPlayer && string.IsNullOrWhiteSpace(Model.Name))
-            RemoveLatest.InvokeAsync(Model.Number);
     }
 
-    void OnInput(ChangeEventArgs e)
-    {
-        if (!string.IsNullOrWhiteSpace(e.Value as string))
-            AddNew.InvokeAsync(Model.Number);
-        else if(string.IsNullOrWhiteSpace(Model.Name) && string.IsNullOrWhiteSpace(e.Value as string))
-        {
-            RemoveLatest.InvokeAsync(Model.Number);
-        }
-    }
+
 
 }

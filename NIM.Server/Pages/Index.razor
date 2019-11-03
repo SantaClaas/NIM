@@ -15,10 +15,13 @@ else
                 @for (int i = 0; i < PossiblePlayers.Count; ++i)
                 {
                     <div class="form-group">
-                        <PlayerSelector Number="i" Model="PossiblePlayers[i]" OnAiPlayerChange="OnAiPlayerChange" OnClick="OnClick" OnLevelChange="OnLevelChange" AddNew="AddNew" RemoveLatest="RemoveLatest"/>
+                        <PlayerSelector Number="i" Model="PossiblePlayers[i]" OnAiPlayerChange="OnAiPlayerChange" OnClick="OnClick" OnLevelChange="OnLevelChange" AddNew="AddNew" />
                     </div>
+               
                 }
             </form>
+            <button class="btn btn-success" @onclick="AddNew">Add Player</button>
+            <button class="btn btn-danger" @onclick="RemoveLatest">Remove Player</button>
             <button class="btn btn-primary" @onclick="@OnSubmit">Submit</button>
         </div>
     </div>
@@ -61,7 +64,6 @@ else
                 AdvancedAiPlayer _ => new AdvancedAiPlayer("Computer Advanced", PossiblePlayers[e.ModelNumber].DifficultyAdvancedAi),
                 _ => new AiPlayerFirst("Computer")
             };
-            AddNew(e.ModelNumber);
             this.StateHasChanged();
         }
 
@@ -84,7 +86,7 @@ else
 
     void OnSubmit()
     {
-        var players = PossiblePlayers.Select(p => p.IsAiPlayer ? p.SelectedAiPlayer : new Human(p.Name ?? $"Player {p.Number}")).ToList();
+        var players = PossiblePlayers.Select(p => p.IsAiPlayer ? p.SelectedAiPlayer : new Human(p.Name ?? $"Player {p.Number + 1}")).ToList();
         gameState.Game = new Game(rules, players);
         //navigationManager.NavigateTo("nim");
         // get move
@@ -92,29 +94,29 @@ else
     }
 
 
-    void AddNew(int i)
+    void AddNew()
     {
-        if (i == PossiblePlayers.Count - 1 /*&& (!PossiblePlayers[i].IsAiPlayer || !string.IsNullOrWhiteSpace(PossiblePlayers[i].Name))*/)
-        {
-            PossiblePlayers.Add(new PlayerSelectorModel
-            {
 
-                Number = PossiblePlayers.Count,
-                IsAiPlayer = false,
-                //Name = $"Player {i + 1}",
-                SelectedAiPlayer = null,
-                DifficultyAdvancedAi = 0f,
-                ValidAiPlayers = ValidAiPlayers
-            });
-            this.StateHasChanged();
-        }
+        PossiblePlayers.Add(new PlayerSelectorModel
+        {
+
+            Number = PossiblePlayers.Count,
+            IsAiPlayer = false,
+            //Name = $"Player {i + 1}",
+            SelectedAiPlayer = null,
+            DifficultyAdvancedAi = 0f,
+            ValidAiPlayers = ValidAiPlayers
+        });
+        this.StateHasChanged();
+
 
     }
 
-    void RemoveLatest(int i)
+    void RemoveLatest()
     {
-        if (i == PossiblePlayers.Count - 2)
-            PossiblePlayers.RemoveAt(i);
+        PossiblePlayers.RemoveAt(PossiblePlayers.Count - 1);
         this.StateHasChanged();
     }
+
+
 }
