@@ -9,7 +9,7 @@ namespace NIM
     {
         private readonly Random _random;
 
-        private Node _gameTree;
+        private PlayerNode _gameTree;
 
         private readonly float _difficulty;
 
@@ -38,7 +38,7 @@ namespace NIM
         /// <param name="rules">The rules to initialize the player with. Pre-loads the decision tree</param>
         public AdvancedAiPlayer(string name, float difficulty, Rules rules) : this(name, difficulty)
         {
-            _gameTree = Node.CalcGameTree(rules);
+            _gameTree = PlayerNode.CalcGameTree(rules);
         }
 
         /// <summary>
@@ -60,19 +60,19 @@ namespace NIM
         /// <inheritdoc cref="Player.DecideNextMove"/>
         public override Move DecideNextMove(Rules rules, Playground playground)
         {
-            if (_gameTree is null || rules != _gameTree.Rules)
-                _gameTree = Node.CalcGameTree(rules);
+            if (_gameTree is null || rules != _gameTree.MoveNode.Rules)
+                _gameTree = PlayerNode.CalcGameTree(rules);
 
-            List<Node> entryPoints = _gameTree.Find(n => n.Playground.Equals(playground));
+            List<PlayerNode> entryPoints = _gameTree.Find(n => n.MoveNode.Playground.Equals(playground));
 
             Dictionary<Move, float> chances = new Dictionary<Move, float>();
-            
-            foreach (Node node in entryPoints)
+
+            foreach (PlayerNode node in entryPoints)
             {
-                foreach (KeyValuePair<Move, Node> choice in node.Children)
+                foreach (KeyValuePair<Move, PlayerNode> choice in node.Children)
                 {
                     float chance = choice.Value.Evaluate(node.Player, _difficulty < 0);
-                    
+
                     if (!chances.ContainsKey(choice.Key))
                     {
                         chances[choice.Key] = chance;
@@ -86,56 +86,53 @@ namespace NIM
 
             float weight = Math.Abs(_difficulty);
             foreach (Move move in chances.Keys.ToList())
-                chances[move] = (float) _random.NextDouble() * (1f - weight) + chances[move] * weight;
+                chances[move] = (float)_random.NextDouble() * (1f - weight) + chances[move] * weight;
 
             List<KeyValuePair<Move, float>> keyValuePairs = chances.OrderBy(p => p.Value).ThenBy(p => p.Key.ChangesPerRow.Sum()).ToList();
             return keyValuePairs.Last().Key;
         }
     }
 
-    internal class Node
+    internal class PlayerNode
     {
-        public Rules Rules { get; }
-
-        public Playground Playground { get; }
-
         public int Player { get; }
 
-        public ReadOnlyDictionary<Move, Node> Children { get; }
+        public MoveNode MoveNode { get; }
 
-        private readonly Dictionary<Move, Node> _children;
+        public ReadOnlyDictionary<Move, PlayerNode> Children { get; }
 
-        private Node(Rules rules, Playground playground, int player)
+        private readonly Dictionary<Move, PlayerNode> _children;
+
+        private PlayerNode(int player, MoveNode moveNode)
         {
-            Rules = rules;
-            Playground = playground;
             Player = player;
-            _children = new Dictionary<Move, Node>();
-            Children = new ReadOnlyDictionary<Move, Node>(_children);
+            MoveNode = moveNode;
+            _children = new Dictionary<Move, PlayerNode>();
+            Children = new ReadOnlyDictionary<Move, PlayerNode>(_children);
         }
 
         private void CalcNextGen()
         {
-            foreach (Move move in Rules.GetValidMoves(Playground))
+            foreach (KeyValuePair<Move, MoveNode> movePair in MoveNode.Children)
             {
-                Node child = new Node(
-                    Rules,
-                    Playground.ApplyMove(move),
-                    (Player + 1) % Rules.PlayerCount
+                PlayerNode child = new PlayerNode(
+                    (Player + 1) % MoveNode.Rules.PlayerCount,
+                    movePair.Value
                     );
 
-                child.CalcNextGen();
+                _children.Add(movePair.Key, child);
 
-                _children.Add(move, child);
+                child.CalcNextGen();
             }
         }
 
-        public static Node CalcGameTree(Rules rules)
+        public static PlayerNode CalcGameTree(Rules rules)
         {
-            Node root = new Node(
-                rules,
-                rules.StartingField,
-                0
+            MoveNode moveTree = MoveNode.CalcGameTree(rules);
+
+            PlayerNode root = new PlayerNode(
+                0,
+                moveTree
             );
 
             root.CalcNextGen();
@@ -143,18 +140,18 @@ namespace NIM
             return root;
         }
 
-        private void AddIfMatch(Func<Node, bool> filter, List<Node> matches)
+        private void AddIfMatch(Func<PlayerNode, bool> filter, List<PlayerNode> matches)
         {
             if (filter(this))
                 matches.Add(this);
 
-            foreach (Node child in _children.Values)
+            foreach (PlayerNode child in _children.Values)
                 child.AddIfMatch(filter, matches);
         }
 
-        public List<Node> Find(Func<Node, bool> filter)
+        public List<PlayerNode> Find(Func<PlayerNode, bool> filter)
         {
-            List<Node> matches = new List<Node>();
+            List<PlayerNode> matches = new List<PlayerNode>();
             AddIfMatch(filter, matches);
             return matches;
         }
@@ -162,7 +159,7 @@ namespace NIM
         public float Evaluate(int player, bool invertCondition)
         {
             if (_children.Count == 0)
-                return (Rules.LastMoveWins ^ invertCondition) ^ (Player + (Rules.PlayerCount - 1)) % Rules.PlayerCount != player
+                return (MoveNode.Rules.LastMoveWins ^ invertCondition) ^ (Player + (MoveNode.Rules.PlayerCount - 1)) % MoveNode.Rules.PlayerCount != player
                     ? 1f
                     : 0f;
 
@@ -172,6 +169,63 @@ namespace NIM
                 return 1f;
 
             return childEvaluations.Average();
+        }
+    }
+
+    internal class MoveNode
+    {
+        public Rules Rules { get; }
+
+        public Playground Playground { get; }
+
+        public ReadOnlyDictionary<Move, MoveNode> Children { get; }
+
+        private readonly Dictionary<Move, MoveNode> _children;
+
+        private MoveNode(Rules rules, Playground playground)
+        {
+            Rules = rules;
+            Playground = playground;
+            _children = new Dictionary<Move, MoveNode>();
+            Children = new ReadOnlyDictionary<Move, MoveNode>(_children);
+        }
+
+        private void CalcNextGen(Dictionary<Playground, MoveNode> existingNodes)
+        {
+            foreach (Move move in Rules.GetValidMoves(Playground))
+            {
+                Playground nextPlayground = Playground.ApplyMove(move);
+
+                if (existingNodes.ContainsKey(nextPlayground))
+                {
+                    _children.Add(move, existingNodes[nextPlayground]);
+                    continue;
+                }
+
+
+                MoveNode child = new MoveNode(Rules, nextPlayground);
+                _children.Add(move, child);
+                existingNodes.Add(nextPlayground, child);
+                child.CalcNextGen(existingNodes);
+            }
+        }
+
+        public static MoveNode CalcGameTree(Rules rules)
+        {
+            MoveNode root = new MoveNode(
+                rules,
+                rules.StartingField
+            );
+
+            Dictionary<Playground, MoveNode> existingNodes = new Dictionary<Playground, MoveNode>
+            {
+                {root.Playground, root}
+            };
+
+
+            root.CalcNextGen(existingNodes);
+
+            return root;
         }
     }
 }
