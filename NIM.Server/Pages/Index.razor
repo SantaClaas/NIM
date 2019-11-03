@@ -12,102 +12,109 @@ else
     <div class="row justify-content-center">
         <div class="col col-lg-3 col-md-5 col-sm-10">
             <form>
-                <div class="form-group">
-                    <label for="player1Name">Player 1:</label>
-                    <input type="text" class="form-control" id="player1Name" placeholder="Player 1" @bind="player1Name" />
-
-                    @if (!isAiPlayer)
-                    {
-                        <label for="player2Name">Player 2:</label>
-                        <input type="text" class="form-control" id="player2Name" placeholder="Player 2" disabled="@isAiPlayer" @bind="player2Name" />
-                    }
-                    else
-                    {
-                        if (SelectedAiPlayer is AdvancedAiPlayer a)
-                        {
-                            <div class="row">
-                                <div class="col col-8">
-                                    <label for="difficulty">Difficulty:</label>
-                                    <select id="difficulty" class="form-control " @onchange="AiPlayerChange">
-                                        @for (int i = 0; i < AiPlayers.Count; ++i)
-                                        {
-                                            <option value="@i">@AiPlayers[i].Name</option>
-                                        }
-                                    </select>
-                                </div>
-                                <div class="col col-4">
-                                    <label for="difficultyPlayer">Level:</label>
-                                    <input type="number" class="form-control" id="difficultyPlayer" max="1" min="-1" step="0.10" @bind="difficultyAdvancedAi" />
-                                </div>
-                            </div>
-                        }
-                        else
-                        {
-                            <label for="difficulty">Difficulty:</label>
-                            <select id="difficulty" class="form-control " @onchange="AiPlayerChange">
-                                @for (int i = 0; i < AiPlayers.Count; ++i)
-                                {
-                                    <option value="@i">@AiPlayers[i].Name</option>
-                                }
-                            </select>
-
-                        }
-                    }
-                    <div class="form-group form-check">
-                        <input type="checkbox" class="form-check-input" id="checkAiPlayer" @bind="isAiPlayer" @onclick="OnClick" />
-                        <label class="form-check-label" for="checkAiPlayer">Ai Player</label>
+                @for (int i = 0; i < PossiblePlayers.Count; ++i)
+                {
+                    <div class="form-group">
+                        <PlayerSelector Number="i" Model="PossiblePlayers[i]" OnAiPlayerChange="OnAiPlayerChange" OnClick="OnClick" OnLevelChange="OnLevelChange" AddNew="AddNew" RemoveLatest="RemoveLatest"/>
                     </div>
-                </div>
+                }
             </form>
             <button class="btn btn-primary" @onclick="@OnSubmit">Submit</button>
         </div>
     </div>
 }
 @code{
-    private string player1Name;
-    private string player2Name;
-    private bool isAiPlayer = false;
-    private Player SelectedAiPlayer;
-    private float difficultyAdvancedAi = 0f;
+    private List<Player> ValidAiPlayers { get; set; }
+    private List<PlayerSelectorModel> PossiblePlayers { get; set; }
 
-    List<Player> AiPlayers = new List<Player>
+    protected override void OnInitialized()
+    {
+        ValidAiPlayers = new List<Player>
 {
         new AiPlayerFirst("Computer First"),
         new AiPlayerSimple("Computer Simple"),
         new AiPlayerRandom("Computer Random"),
         new AdvancedAiPlayer("Computer Advanced",0)
-    };
+        };
 
-    void AiPlayerChange(ChangeEventArgs e)
+        PossiblePlayers = Enumerable.Range(0, 2).Select(i => new PlayerSelectorModel
+        {
+            Number = i,
+            IsAiPlayer = false,
+            //Name = $"Player {i + 1}",
+            SelectedAiPlayer = null,
+            DifficultyAdvancedAi = 0f,
+            ValidAiPlayers = ValidAiPlayers
+        })
+        .ToList();
+    }
+
+    void OnAiPlayerChange(AiPlayerChangeArgs e)
     {
-        if (int.TryParse(e.Value as string, out int i))
-            SelectedAiPlayer = AiPlayers[i] switch
+        if (int.TryParse(e.ChangeEventArgs.Value as string, out int i))
+        {
+            PossiblePlayers[e.ModelNumber].SelectedAiPlayer = ValidAiPlayers[i] switch
             {
                 AiPlayerFirst first => first,
                 AiPlayerSimple simple => simple,
                 AiPlayerRandom random => random,
-                AdvancedAiPlayer _ => new AdvancedAiPlayer("Computer Advanced", difficultyAdvancedAi),
+                AdvancedAiPlayer _ => new AdvancedAiPlayer("Computer Advanced", PossiblePlayers[e.ModelNumber].DifficultyAdvancedAi),
                 _ => new AiPlayerFirst("Computer")
             };
+            AddNew(e.ModelNumber);
+            this.StateHasChanged();
+        }
+
     }
 
-    void OnClick()
+    void OnClick(int index)
     {
-        SelectedAiPlayer = AiPlayers[0];
+        PossiblePlayers[index].SelectedAiPlayer = PossiblePlayers[index].ValidAiPlayers[0];
         this.StateHasChanged();
+    }
+
+    void OnLevelChange(AiPlayerChangeArgs e)
+    {
+        if (float.TryParse(e.ChangeEventArgs.Value as string, out float newLevel)
+            && PossiblePlayers[e.ModelNumber].SelectedAiPlayer is AdvancedAiPlayer advancedAiPlayer)
+        {
+            PossiblePlayers[e.ModelNumber].SelectedAiPlayer = new AdvancedAiPlayer(advancedAiPlayer.Name, newLevel);
+        }
     }
 
     void OnSubmit()
     {
-        var players = new[]
-        {
-            new Human(player1Name ?? "Player 1"),
-            isAiPlayer ? SelectedAiPlayer : new Human(player2Name ?? "Player 2") as Player,
-        };
-
+        var players = PossiblePlayers.Select(p => p.IsAiPlayer ? p.SelectedAiPlayer : new Human(p.Name ?? $"Player {p.Number}")).ToList();
         gameState.Game = new Game(rules, players);
         //navigationManager.NavigateTo("nim");
         // get move
         gameState.Game.Step();
+    }
+
+
+    void AddNew(int i)
+    {
+        if (i == PossiblePlayers.Count - 1 /*&& (!PossiblePlayers[i].IsAiPlayer || !string.IsNullOrWhiteSpace(PossiblePlayers[i].Name))*/)
+        {
+            PossiblePlayers.Add(new PlayerSelectorModel
+            {
+
+                Number = PossiblePlayers.Count,
+                IsAiPlayer = false,
+                //Name = $"Player {i + 1}",
+                SelectedAiPlayer = null,
+                DifficultyAdvancedAi = 0f,
+                ValidAiPlayers = ValidAiPlayers
+            });
+            this.StateHasChanged();
+        }
+
+    }
+
+    void RemoveLatest(int i)
+    {
+        if (i == PossiblePlayers.Count - 2)
+            PossiblePlayers.RemoveAt(i);
+        this.StateHasChanged();
     }
 }

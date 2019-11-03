@@ -9,9 +9,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NIM", "NIM\NIM.csproj", "{B
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NimTests", "NimTests\NimTests.csproj", "{822FAA6B-1AD2-4CBC-86EB-5124AE47CAF0}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Components", "Components\Components.csproj", "{DF143E3D-A292-47F3-A207-CA34088B4E85}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Components", "Components\Components.csproj", "{DF143E3D-A292-47F3-A207-CA34088B4E85}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NIM.Server", "NIM.Server\NIM.Server.csproj", "{AE49EC6F-3B4B-4042-A3E4-76B5421F1029}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NIM.Server", "NIM.Server\NIM.Server.csproj", "{AE49EC6F-3B4B-4042-A3E4-76B5421F1029}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
