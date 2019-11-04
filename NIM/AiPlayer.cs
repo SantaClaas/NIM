@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Linq;
 
 namespace NIM
 {
@@ -34,22 +32,5 @@ namespace NIM
         }
     }
 
-    public class AiPlayerSimple : Player
-    {
-        public AiPlayerSimple(string name) : base(name)
-        {
-        }
-
-        public override Move DecideNextMove(Rules rules, Playground playground)
-        {
-            if (!rules.LastMoveWins || rules.ValidMoves.Any(m => m.ChangesPerRow.Count(c => c > 0) != 1))
-                throw new Exception("Incompatible ruleset");
-
-            List<Move> validMoves = rules.GetValidMoves(playground);
-            return validMoves.FirstOrDefault(m =>
-                                                playground.ApplyMove(m).Rows.Aggregate((a, c) => a ^ c) == 0
-                                            )
-                   ?? validMoves.First();
-        }
-    }
+   
 }

@@ -171,11 +171,11 @@ namespace NimTests
         [Test]
         public void Test_AdvancedAi()
         {
-            AdvancedAiPlayer teacher=new AdvancedAiPlayer("Teacher",0f,Rules.Default);
+            AiPlayerMinMax teacher=new AiPlayerMinMax("Teacher",0f,Rules.Default);
 
 
-            AdvancedAiPlayer playerA = new AdvancedAiPlayer("A", 1f, teacher);
-            AdvancedAiPlayer playerB = new AdvancedAiPlayer("B", 1f, teacher);
+            AiPlayerMinMax playerA = new AiPlayerMinMax("A", 1f, teacher);
+            AiPlayerMinMax playerB = new AiPlayerMinMax("B", 1f, teacher);
 
             Game game = new Game(Rules.Default, new[] { playerA, playerB });
 
@@ -186,8 +186,8 @@ namespace NimTests
 
 
 
-            playerA = new AdvancedAiPlayer("A", -1f, teacher);
-            playerB = new AdvancedAiPlayer("B", 1f, teacher);
+            playerA = new AiPlayerMinMax("A", -1f, teacher);
+            playerB = new AiPlayerMinMax("B", 1f, teacher);
 
             game = new Game(Rules.Default, new[] { playerA, playerB });
 
@@ -198,8 +198,8 @@ namespace NimTests
 
 
 
-            playerA = new AdvancedAiPlayer("A", 1f, teacher);
-            playerB = new AdvancedAiPlayer("B", -1f, teacher);
+            playerA = new AiPlayerMinMax("A", 1f, teacher);
+            playerB = new AiPlayerMinMax("B", -1f, teacher);
 
             game = new Game(Rules.Default, new[] { playerA, playerB });
 
@@ -210,8 +210,8 @@ namespace NimTests
 
 
 
-            playerA = new AdvancedAiPlayer("A", -1f, teacher);
-            playerB = new AdvancedAiPlayer("B", -1f, teacher);
+            playerA = new AiPlayerMinMax("A", -1f, teacher);
+            playerB = new AiPlayerMinMax("B", -1f, teacher);
 
             game = new Game(Rules.Default, new[] { playerA, playerB });
 

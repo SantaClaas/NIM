@@ -21,7 +21,7 @@
             @for (int i = 0; i < PossiblePlayers.Count; ++i)
             {
                 <div class="form-group">
-                    <PlayerSelector Number="i" Model="PossiblePlayers[i]" OnAiPlayerChange="OnAiPlayerChange" OnClick="OnClick" OnLevelChange="OnLevelChange" AddNew="AddNew" OnFocusOut="OnFocusOut"/>
+                    <PlayerSelector Number="i" Model="PossiblePlayers[i]" OnAiPlayerChange="OnAiPlayerChange" OnClick="OnClick" OnLevelChange="OnLevelChange" AddNew="AddNew" OnFocusOut="OnFocusOut" />
                 </div>
 
             }
@@ -41,9 +41,8 @@
     {
         ValidAiPlayers = new List<Player> {
         new AiPlayerFirst($"Computer First"),
-        new AiPlayerSimple($"Computer Simple"),
         new AiPlayerRandom($"Computer Random"),
-        new AdvancedAiPlayer($"Computer Advanced",0) };
+        new AiPlayerMinMax($"Computer Advanced",0) };
 
         PossiblePlayers = Enumerable.Range(0, 2).Select(i => new PlayerSelectorModel
         {
@@ -63,9 +62,8 @@
             PossiblePlayers[e.ModelNumber].SelectedAiPlayer = ValidAiPlayers[i] switch
             {
                 AiPlayerFirst first => new AiPlayerFirst($"Player {i} ({first.Name})"),
-                AiPlayerSimple simple => new AiPlayerSimple($"Player {i} ({simple.Name})"),
                 AiPlayerRandom random => new AiPlayerRandom($"Player {i} ({random.Name})"),
-                AdvancedAiPlayer _ => new AdvancedAiPlayer("Computer Advanced", PossiblePlayers[e.ModelNumber].DifficultyAdvancedAi),
+                AiPlayerMinMax _ => new AiPlayerMinMax("Computer Advanced", PossiblePlayers[e.ModelNumber].DifficultyAdvancedAi),
                 _ => new AiPlayerFirst("Computer")
             };
             this.StateHasChanged();
@@ -78,9 +76,8 @@
         PossiblePlayers[index].SelectedAiPlayer = PossiblePlayers[index].ValidAiPlayers[0] switch
         {
             AiPlayerFirst first => new AiPlayerFirst($"Player {index} ({first.Name})"),
-            AiPlayerSimple simple => new AiPlayerSimple($"Player {index} ({simple.Name})"),
             AiPlayerRandom random => new AiPlayerRandom($"Player {index} ({random.Name})"),
-            AdvancedAiPlayer _ => new AdvancedAiPlayer("Computer Advanced", PossiblePlayers[index].DifficultyAdvancedAi),
+            AiPlayerMinMax _ => new AiPlayerMinMax("Computer Advanced", PossiblePlayers[index].DifficultyAdvancedAi),
             _ => new AiPlayerFirst("Computer")
         };
 
@@ -90,9 +87,9 @@
     void OnLevelChange(AiPlayerChangeArgs e)
     {
         if (float.TryParse(e.ChangeEventArgs.Value as string, out float newLevel)
-            && PossiblePlayers[e.ModelNumber].SelectedAiPlayer is AdvancedAiPlayer advancedAiPlayer)
+            && PossiblePlayers[e.ModelNumber].SelectedAiPlayer is AiPlayerMinMax advancedAiPlayer)
         {
-            PossiblePlayers[e.ModelNumber].SelectedAiPlayer = new AdvancedAiPlayer(advancedAiPlayer.Name, newLevel);
+            PossiblePlayers[e.ModelNumber].SelectedAiPlayer = new AiPlayerMinMax(advancedAiPlayer.Name, newLevel);
         }
     }
 

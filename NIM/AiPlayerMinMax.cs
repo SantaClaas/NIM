@@ -5,7 +5,7 @@ using System.Linq;
 
 namespace NIM
 {
-    public class AdvancedAiPlayer : Player
+    public class AiPlayerMinMax : Player
     {
         private readonly Random _random;
 
@@ -18,7 +18,7 @@ namespace NIM
         /// </summary>
         /// <param name="name">The name for this player. Also used as seed for the internal randomization</param>
         /// <param name="difficulty">The difficulty level of this AI player. May range anywhere from 1 to -1, where 1 results in the best, 0 in random and -1 in the worst possible choices</param>
-        public AdvancedAiPlayer(string name, float difficulty) : base(name)
+        public AiPlayerMinMax(string name, float difficulty) : base(name)
         {
             _random = new Random(name.GetHashCode());
 
@@ -36,7 +36,7 @@ namespace NIM
         /// <param name="name">The name for this player. Also used as seed for the internal randomization</param>
         /// <param name="difficulty">The difficulty level of this AI player. May range anywhere from 1 to -1, where 1 results in the best, 0 in random and -1 in the worst possible choices</param>
         /// <param name="rules">The rules to initialize the player with. Pre-loads the decision tree</param>
-        public AdvancedAiPlayer(string name, float difficulty, Rules rules) : this(name, difficulty)
+        public AiPlayerMinMax(string name, float difficulty, Rules rules) : this(name, difficulty)
         {
             _gameTree = PlayerNode.CalcGameTree(rules);
         }
@@ -47,7 +47,7 @@ namespace NIM
         /// <param name="name">The name for this player. Also used as seed for the internal randomization</param>
         /// <param name="difficulty">The difficulty level of this AI player. May range anywhere from 1 to -1, where 1 results in the best, 0 in random and -1 in the worst possible choices</param>
         /// <param name="teacher">An existing AI Player to copy the decision tree from</param>
-        public AdvancedAiPlayer(string name, float difficulty, AdvancedAiPlayer teacher) : this(name, difficulty)
+        public AiPlayerMinMax(string name, float difficulty, AiPlayerMinMax teacher) : this(name, difficulty)
         {
             _gameTree = teacher._gameTree;
         }
