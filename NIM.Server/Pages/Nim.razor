@@ -6,7 +6,7 @@
 <h2>Current player: @gameState.Game.CurrentPlayer.Name</h2>
 @for (int i = 0; i < gameState.Field.Length; ++i)
 {
-    <NIM.Server.Shared.NimRow Count="@gameState.Field[i]" OnTake="Take" CanTake="@CanTake(i)" RowIndex=i/>
+    <NIM.Server.Shared.NimRow Count="@gameState.Field[i]" OnTake="Take" CanTake="@CanTake(i)" RowIndex=i />
 }
 
 <div class="row justify-content-end">
@@ -46,7 +46,10 @@
     void Reset()
     {
         if (gameState.Game.State == NIM.GameState.GameOver)
+        {
             navigationManager.NavigateTo("/");
+            return;
+        }
         gameState.CurrentMove = new int[gameState.Game.CurrentPlayground.Rows.Count];
         //Array.Copy(gameState.Game.CurrentPlayground.Rows, State);
         gameState.Field = gameState.Game.CurrentPlayground.Rows.ToArray();

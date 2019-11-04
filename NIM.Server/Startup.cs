@@ -31,10 +31,7 @@ namespace NIM.Server
             services.AddSingleton(r => Rules.Default);
             services.AddSingleton<GameState>();
         }
-        void a(int maxtake, int rows)
-        {
-            
-        }
+     
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
