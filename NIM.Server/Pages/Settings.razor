@@ -1,0 +1,40 @@
+﻿@using ViewModels
+@page "/settings"
+<div class="row justify-content-center">
+    <form>
+        <div class="form-group" id="rows">
+            <label for="rowsCount">Rows</label>
+            <div class="row">
+                <div class="col-5">
+                    <input type="number" class="form-control" id="rowsCount" @bind="ViewModel.RowsCount" min="@ViewModel.RowsMin" />
+                </div>
+            </div>
+        </div>
+        <div class="form-group" id="maxTake">
+            <label for="takeMax">Max takes per row</label>
+            <div class="row">
+                <div class="col-5">
+                    <input type="number" class="form-control" id="takeMax" @bind="ViewModel.ChangesPerRow" min="@ViewModel.MinChangesPerRow" max="@ViewModel.MaxChangesPerRow" />
+                </div>
+            </div>
+        </div>
+        <label for="winCondition">Last move</label>
+        <div class="form-group" id="winCondition">
+            <div class="form-check">
+                @* Can't use binding on radio yet this is a workaround *@
+                <input class="form-check-input" name="winConditionRadio" type="radio" id="lastMoveWinsRadio" checked="@ViewModel.LastMoveWins" @onchange="() => ViewModel.LastMoveWins = true" />
+                <label class="form-check-label" for="lastMoveWinsRadio">wins</label>
+            </div>
+            <div class="form-check">
+                @* Can't use binding on radio yet this is a workaround *@
+                <input class="form-check-input" name="winConditionRadio" type="radio" id="lastMoveLosesRadio" checked="@(!ViewModel.LastMoveWins)" @onchange="() => ViewModel.LastMoveWins = false" />
+                <label class="form-check-label" for="lastMoveLosesRadio">loses</label>
+            </div>
+        </div>
+    </form>
+</div>
+@code {
+    [Parameter]
+    public SettingsViewModel ViewModel { get; set; } = new SettingsViewModel();
+
+}
