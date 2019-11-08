@@ -16,7 +16,7 @@
 </div>
 
 <div class="row justify-content-center">
-    <div class="col col-lg-3 col-md-5 col-sm-10">
+    <div class="col col-lg-3 col-md-5 col-sm-10 justify-content-center">
         <form>
             @for (int i = 0; i < PossiblePlayers.Count; ++i)
             {
@@ -29,6 +29,7 @@
         <button class="btn btn-success" @onclick="AddNew">Add Player</button>
         <button class="btn btn-danger" @onclick="RemoveLatest">Remove Player</button>
         <button class="btn btn-primary" @onclick="@OnSubmit"><i class="oi oi-media-play" /> Start </button>
+        <a href="/settings" class="btn btn-secondary active"><i class="oi oi-cog" /></a>
     </div>
 </div>
 

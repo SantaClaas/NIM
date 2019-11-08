@@ -1,23 +1,61 @@
 ﻿@using ViewModels
 @page "/settings"
 <div class="row justify-content-center">
-    <form>
-        <div class="form-group" id="rows">
-            <label for="rowsCount">Rows</label>
-            <div class="row">
-                <div class="col-5">
-                    <input type="number" class="form-control" id="rowsCount" @bind="ViewModel.RowsCount" min="@ViewModel.RowsMin" />
+    <div class="col-sm-7 col-md-5 col-lg-4 col-xl-3">
+        <div class="card">
+            <div class="card-header">
+                <h2 class="card-title">Playground</h2>
+            </div>
+            <div class="card-body py-2">
+                <div class="form-group row mb-0">
+                    <div class="col-8">
+                        <h5 class="mb-0 mt-2 card-title">Rows</h5>
+                    </div>
+                    <div class="col-4">
+                        <input type="number" class="form-control" @bind="ViewModel.RowsCount" min="1" />
+                    </div>
                 </div>
             </div>
+            <ul class="list-group  list-group-flush">
+                @*<li class="list-group-item  p-1">
+                    <div class="form-group row m-0" id="rowCount">
+                        <div class="col-8 col-sm-8">
+                            <label class="mt-2">Row Number</label>
+                        </div>
+                        <div class="col-4 col-sm-4">
+                            <label class="mt-2">Match Count</label>
+                        </div>
+                    </div>
+                </li>*@
+                @for (int i = 0; i < ViewModel.RowsCount; ++i)
+                {
+                    <li class="list-group-item p-1 list-group-item-light">
+                        <div class="form-group row m-0" id="rowCount">
+                            <div class="col-8 col-sm-8 pl-4">
+                                <label class="mt-2" for="rowsCount">Row @(i + 1)</label>
+                            </div>
+                            <div class="col-4 col-sm-4">
+                                <input type="number" class="form-control" id="rowsCount" @bind="ViewModel.Rows[i]" min="1" />
+                            </div>
+                        </div>
+                    </li>
+                }
+            </ul>
         </div>
-        <div class="form-group" id="maxTake">
-            <label for="takeMax">Max takes per row</label>
-            <div class="row">
-                <div class="col-5">
-                    <input type="number" class="form-control" id="takeMax" @bind="ViewModel.ChangesPerRow" min="@ViewModel.MinChangesPerRow" max="@ViewModel.MaxChangesPerRow" />
-                </div>
+    </div>
+</div>
+<div class="row justify-content-center">
+    <div class="col-5">
+        <label for="takeMax">Max takes per row</label>
+        <div class="row">
+            <div class="col-5">
+                <input type="number" class="form-control" id="takeMax" @bind="ViewModel.ChangesPerRow" min="@ViewModel.MinChangesPerRow" max="@ViewModel.MaxChangesPerRow" />
             </div>
         </div>
+    </div>
+</div>
+<div class="row justify-content-center">
+    <div class="col-5">
         <label for="winCondition">Last move</label>
         <div class="form-group" id="winCondition">
             <div class="form-check">
@@ -31,7 +69,7 @@
                 <label class="form-check-label" for="lastMoveLosesRadio">loses</label>
             </div>
         </div>
-    </form>
+    </div>
 </div>
 @code {
     [Parameter]
