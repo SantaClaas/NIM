@@ -12,9 +12,8 @@ namespace NIM.Server.Models
         public bool IsAiPlayer { get; set; }
         public string Name { get; set; }
         public Player SelectedAiPlayer { get; set; }
-        public float DifficultyAdvancedAi { get; set; }
-        public List<Player> ValidAiPlayers { get; set; }
-
+        public float DifficultyAdvancedAi { get => difficultyAdvancedAi; set { difficultyAdvancedAi = value >= -1 || value <= 1 ? value : difficultyAdvancedAi; } }
+        private float difficultyAdvancedAi;
     }
     public class AiPlayerChangeArgs
     {

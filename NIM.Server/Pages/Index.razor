@@ -19,8 +19,31 @@
         <form>
             @for (int i = 0; i < PossiblePlayers.Count; ++i)
             {
+                int index = i;
                 <div class="form-group">
-                    <PlayerSelector Number="i" Model="PossiblePlayers[i]" OnAiPlayerChange="OnAiPlayerChange" OnClick="OnClick" OnLevelChange="OnLevelChange" AddNew="AddNew" OnFocusOut="OnFocusOut" />
+                    <label for="playerName @index">@($"Player {index + 1}"):</label>
+                    <input type="text" class="form-control" id="playerName @index" placeholder="@($"Player {index + 1}")" @bind="PossiblePlayers[index].Name" />
+                    @if (index != 0)
+                    {
+                        <div class="form-check">
+                            <input type="checkbox" class="form-check-input" id="checkIsAiPlayer @index" @bind="PossiblePlayers[index].IsAiPlayer" />
+                            <label class="form-check-label" for="checkIsAiPlayer @index">Ai Player</label>
+                        </div>
+                    }
+                    @if (PossiblePlayers[index].IsAiPlayer)
+                    {
+                        <div class="form-control-range form-row">
+                            <div class="col-auto">
+                                <label for="aiLevel @index">Difficulty:</label>
+                            </div>
+                            <div class="col-1">
+                                <label>@PossiblePlayers[index].DifficultyAdvancedAi</label>
+                            </div>
+                            <div class="col-auto flex-fill">
+                                <input type="range" class="custom-range" id="aiLevel @index" min="-1" max="1" step="0.1" @bind="PossiblePlayers[index].DifficultyAdvancedAi" @bind:event="oninput" />
+                            </div>
+                        </div>
+                    }
                 </div>
             }
         </form>
@@ -49,8 +72,7 @@
             IsAiPlayer = false,
             //Name = $"Player {i + 1}",
             SelectedAiPlayer = null,
-            DifficultyAdvancedAi = 0f,
-            ValidAiPlayers = ValidAiPlayers
+            DifficultyAdvancedAi = 0f
         })
         .ToList();
     }
@@ -72,13 +94,7 @@
 
     void OnClick(int index)
     {
-        PossiblePlayers[index].SelectedAiPlayer = PossiblePlayers[index].ValidAiPlayers[0] switch
-        {
-            AiPlayerFirst first => new AiPlayerFirst($"Player {index} ({first.Name})"),
-            AiPlayerRandom random => new AiPlayerRandom($"Player {index} ({random.Name})"),
-            AiPlayerMinMax _ => new AiPlayerMinMax("Computer Advanced", PossiblePlayers[index].DifficultyAdvancedAi),
-            _ => new AiPlayerFirst("Computer")
-        };
+        PossiblePlayers[index].SelectedAiPlayer = new AiPlayerMinMax("Computer Advanced", PossiblePlayers[index].DifficultyAdvancedAi);
 
         this.StateHasChanged();
     }
@@ -116,7 +132,6 @@
             //Name = $"Player {i + 1}",
             SelectedAiPlayer = null,
             DifficultyAdvancedAi = 0f,
-            ValidAiPlayers = ValidAiPlayers
         });
         this.StateHasChanged();
 
