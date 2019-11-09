@@ -17,12 +17,20 @@
 <div class="row justify-content-center">
     <div class="col col-lg-3 col-md-5 col-sm-10 justify-content-center">
         <form>
+
             @for (int i = 0; i < PossiblePlayers.Count; ++i)
             {
                 int index = i;
-                <div class="form-group">
+
+                <div class="form-group ">
                     <label for="playerName @index">@($"Player {index + 1}"):</label>
-                    <input type="text" class="form-control" id="playerName @index" placeholder="@($"Player {index + 1}")" @bind="PossiblePlayers[index].Name" />
+                    <input type="text" class="form-control" id="playerName @index" placeholder="@($"Player {index + 1}")" value="@PossiblePlayers[index].Name" @oninput="(e)=>OnInput(e,index)" />
+                    @if (!PossiblePlayers[index].IsNameValid)
+                    {
+                        <small class="text-danger">Sorry, this name has already been taken</small>
+                    }
+
+
                     @if (index != 0)
                     {
                         <div class="form-check">
@@ -46,71 +54,35 @@
                     }
                 </div>
             }
+
         </form>
         <button class="btn btn-success" @onclick="AddNew">Add Player</button>
         <button class="btn btn-danger" @onclick="RemoveLatest">Remove Player</button>
-        <button class="btn btn-primary" @onclick="@OnSubmit"><i class="oi oi-media-play" /> Start </button>
+        <button class="btn btn-primary" @onclick="@OnSubmit" disabled="@(!CanSubmit)"><i class="oi oi-media-play" /> Start </button>
         <a href="/settings" class="btn btn-secondary active"><i class="oi oi-cog" /></a>
     </div>
 </div>
 
 @code{
-    private List<Player> ValidAiPlayers { get; set; }
 
     private List<PlayerSelectorModel> PossiblePlayers { get; set; }
-
+    private string GetValidationCss(PlayerSelectorModel model) => IsNameUnique(model.Name) ? "was-validated" : string.Empty;
+    bool CanSubmit { get; set; } = true;
     protected override void OnInitialized()
     {
-        ValidAiPlayers = new List<Player> {
-        new AiPlayerFirst($"Computer First"),
-        new AiPlayerRandom($"Computer Random"),
-        new AiPlayerMinMax($"Computer Advanced",0) };
 
-        PossiblePlayers = Enumerable.Range(0, 2).Select(i => new PlayerSelectorModel
+        PossiblePlayers = Enumerable.Range(1, 2).Select(i => new PlayerSelectorModel
         {
-            Number = i,
             IsAiPlayer = false,
-            //Name = $"Player {i + 1}",
-            SelectedAiPlayer = null,
-            DifficultyAdvancedAi = 0f
+            DifficultyAdvancedAi = 0f,
+            IsNameValid = true,
         })
         .ToList();
-    }
-    void OnAiPlayerChange(AiPlayerChangeArgs e)
-    {
-        if (int.TryParse(e.ChangeEventArgs.Value as string, out int i))
-        {
-            PossiblePlayers[e.ModelNumber].SelectedAiPlayer = ValidAiPlayers[i] switch
-            {
-                AiPlayerFirst first => new AiPlayerFirst($"Player {i} ({first.Name})"),
-                AiPlayerRandom random => new AiPlayerRandom($"Player {i} ({random.Name})"),
-                AiPlayerMinMax _ => new AiPlayerMinMax("Computer Advanced", PossiblePlayers[e.ModelNumber].DifficultyAdvancedAi),
-                _ => new AiPlayerFirst("Computer")
-            };
-            this.StateHasChanged();
-        }
-
-    }
-
-    void OnClick(int index)
-    {
-        PossiblePlayers[index].SelectedAiPlayer = new AiPlayerMinMax("Computer Advanced", PossiblePlayers[index].DifficultyAdvancedAi);
-
-        this.StateHasChanged();
-    }
-
-    void OnLevelChange(AiPlayerChangeArgs e)
-    {
-        if (float.TryParse(e.ChangeEventArgs.Value as string, out float newLevel)
-            && PossiblePlayers[e.ModelNumber].SelectedAiPlayer is AiPlayerMinMax advancedAiPlayer)
-        {
-            PossiblePlayers[e.ModelNumber].SelectedAiPlayer = new AiPlayerMinMax(advancedAiPlayer.Name, newLevel);
-        }
     }
 
     void OnSubmit()
     {
-        var players = PossiblePlayers.Select(p => p.IsAiPlayer ? p.SelectedAiPlayer : new Human(p.Name ?? $"Player {p.Number + 1}")).ToList();
+        var players = PossiblePlayers.Select((p, i) => p.IsAiPlayer ? new AiPlayerMinMax(p.Name ?? $"Player {i + 1} (Computer)", p.DifficultyAdvancedAi) : new Human(p.Name ?? $"Player {i + 1}") as Player).ToList();
 
         Rules rules = gameState.RulesBuilder?.Players(players.Count).Create() ?? Rules.Default;
         gameState.Game = new Game(rules, players);
@@ -119,36 +91,30 @@
         gameState.Game.Step();
     }
 
-
+    bool IsNameUnique(string name) => PossiblePlayers.Count(p => p.Name == name) == 1;
 
     void AddNew()
     {
 
         PossiblePlayers.Add(new PlayerSelectorModel
         {
-
-            Number = PossiblePlayers.Count,
             IsAiPlayer = false,
-            //Name = $"Player {i + 1}",
-            SelectedAiPlayer = null,
             DifficultyAdvancedAi = 0f,
         });
-        this.StateHasChanged();
-
-
+        StateHasChanged();
     }
 
     void RemoveLatest()
     {
         if (PossiblePlayers.Count == 2) return;
         PossiblePlayers.RemoveAt(PossiblePlayers.Count - 1);
-        this.StateHasChanged();
+        StateHasChanged();
     }
 
-    void OnFocusOut(int i)
+    void OnInput(ChangeEventArgs e, int index)
     {
-        if (PossiblePlayers.Any(p => p.Name == PossiblePlayers[i].Name))
-            PossiblePlayers[i].Name += $"(2)";
+        PossiblePlayers[index].Name = e.Value as string;
+        PossiblePlayers[index].IsNameValid = IsNameUnique(e.Value as string);
+        CanSubmit = !PossiblePlayers.Any(p => !p.IsNameValid);
     }
-
 }
