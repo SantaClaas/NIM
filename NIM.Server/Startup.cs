@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using NIM.Server.Models;
 
 namespace NIM.Server
 {
@@ -27,11 +28,9 @@ namespace NIM.Server
             services.AddRazorPages();
             services.AddServerSideBlazor();
 
-
-            services.AddSingleton(r => Rules.Default);
             services.AddSingleton<GameState>();
         }
-     
+
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
@@ -61,7 +60,16 @@ namespace NIM.Server
         public int[] Field { get; set; }
         public int[] CurrentMove { get; set; }
         public bool IsInitialized => Game != null;
-        public Game Game { get; set; }
 
+        public Settings Settings { get; set; } 
+        public Game Game { get; set; }
+        public Rules Rules
+        {
+            get => rules ?? RulesBuilder?.Create() ?? Rules.Default;
+            set => rules = value;
+
+        }
+        public Rules.Builder RulesBuilder { get; set; }
+        private Rules rules;
     }
 }

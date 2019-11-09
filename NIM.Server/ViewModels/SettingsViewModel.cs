@@ -1,15 +1,13 @@
-﻿using System;
+﻿using NIM.Server.Models;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace NIM.Server.ViewModels
 {
     public class SettingsViewModel
     {
-        private int rowsCount;
         public int RowsCount
         {
-            get => rowsCount;
+            get => Rows.Count;
             set
             {
                 if (value < 1)
@@ -22,20 +20,36 @@ namespace NIM.Server.ViewModels
                 {
                     Rows.RemoveAt(Rows.Count - 1);
                 }
-                rowsCount = value;
             }
         }
-        public int RowsMin { get; set; } = 1;
+
         public List<int> Rows { get; set; }
-        public int ChangesPerRow { get; set; } = 3;
-        public int MaxChangesPerRow { get; set; } = 3;
+        public int ChangesPerRow { get => changesPerRow; set => changesPerRow = value >= 1 ? value : changesPerRow; }
         public int MinChangesPerRow { get; set; } = 1;
         public bool LastMoveWins { get; set; } = true;
+        private readonly GameState state;
+        private int changesPerRow = 3;
 
-        public SettingsViewModel()
+        public SettingsViewModel(GameState gameState)
         {
-            Rows = new List<int>(0);
-            RowsCount = 4;
+            gameState.Settings ??= new Settings
+            {
+                Rows = new List<int> { 1, 2, 3, 4 },
+                LastMoveWins = true,
+                ChangesPerRow = 3,
+            };
+            state = gameState;
+            Rows = gameState.Settings.Rows;
+            RowsCount = gameState.Settings.Rows.Count;
+            LastMoveWins = gameState.Settings.LastMoveWins;
+        }
+
+        public void OnSave()
+        {
+            var b = Rules.Build(Rows);
+            b = LastMoveWins ? b.LastMoveWins() : b.LastMoveLooses();
+            b.AddSingleRowRules(1, ChangesPerRow);
+            state.RulesBuilder = b;
         }
     }
 }

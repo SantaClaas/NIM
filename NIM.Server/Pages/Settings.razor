@@ -1,5 +1,11 @@
 ﻿@using ViewModels
+@inject GameState gameState
 @page "/settings"
+<div class="row justify-content-center">
+    <div class="col-auto">
+        <h1>Settings</h1>
+    </div>
+</div>
 <div class="row justify-content-center">
     <div class="col-sm-7 col-md-5 col-lg-4 col-xl-3">
         <div class="card">
@@ -18,44 +24,47 @@
             </div>
             <ul class="list-group  list-group-flush">
                 @*<li class="list-group-item  p-1">
-                    <div class="form-group row m-0" id="rowCount">
-                        <div class="col-8 col-sm-8">
-                            <label class="mt-2">Row Number</label>
+                        <div class="form-group row m-0" id="rowCount">
+                            <div class="col-8 col-sm-8">
+                                <label class="mt-2">Row Number</label>
+                            </div>
+                            <div class="col-4 col-sm-4">
+                                <label class="mt-2">Match Count</label>
+                            </div>
                         </div>
-                        <div class="col-4 col-sm-4">
-                            <label class="mt-2">Match Count</label>
-                        </div>
-                    </div>
-                </li>*@
+                    </li>*@
                 @for (int i = 0; i < ViewModel.RowsCount; ++i)
                 {
+                    // need to capture i because otherwise all list items will use the same i (which is out of boundaries)
+                    var index = i;
                     <li class="list-group-item p-1 list-group-item-light">
                         <div class="form-group row m-0" id="rowCount">
                             <div class="col-8 col-sm-8 pl-4">
                                 <label class="mt-2" for="rowsCount">Row @(i + 1)</label>
                             </div>
                             <div class="col-4 col-sm-4">
-                                <input type="number" class="form-control" id="rowsCount" @bind="ViewModel.Rows[i]" min="1" />
+                                <input type="number" class="form-control" id="rowsCount" @bind-value="ViewModel.Rows[index]" @bind-value:event="oninput" min="1" />
                             </div>
                         </div>
                     </li>
+
                 }
             </ul>
         </div>
     </div>
 </div>
 <div class="row justify-content-center">
-    <div class="col-5">
+    <div class="col-sm-7 col-md-5 col-lg-4 col-xl-3">
         <label for="takeMax">Max takes per row</label>
         <div class="row">
             <div class="col-5">
-                <input type="number" class="form-control" id="takeMax" @bind="ViewModel.ChangesPerRow" min="@ViewModel.MinChangesPerRow" max="@ViewModel.MaxChangesPerRow" />
+                <input type="number" class="form-control" id="takeMax" @bind="ViewModel.ChangesPerRow" min="@ViewModel.MinChangesPerRow" S />
             </div>
         </div>
     </div>
 </div>
 <div class="row justify-content-center">
-    <div class="col-5">
+    <div class="col-sm-7 col-md-5 col-lg-4 col-xl-3">
         <label for="winCondition">Last move</label>
         <div class="form-group" id="winCondition">
             <div class="form-check">
@@ -71,8 +80,22 @@
         </div>
     </div>
 </div>
+<div class="row justify-content-center">
+    <div class="col-sm-7 col-md-5 col-lg-4 col-xl-3">
+        <div class="row justify-content-end">
+            <div class="col-auto">
+                <a class="btn btn-primary" href="/" @onclick="()=>ViewModel.OnSave()">Save</a>
+            </div>
+        </div>
+    </div>
+</div>
 @code {
-    [Parameter]
-    public SettingsViewModel ViewModel { get; set; } = new SettingsViewModel();
+    public SettingsViewModel ViewModel { get; set; }
+
+    protected override void OnInitialized()
+    {
+        ViewModel = new SettingsViewModel(gameState);
+
+    }
 
 }

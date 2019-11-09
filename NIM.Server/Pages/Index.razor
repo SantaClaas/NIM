@@ -1,7 +1,6 @@
 ﻿@page "/"
 @page "/index"
 @using Models
-@inject Rules rules
 @inject NavigationManager navigationManager
 @inject GameState gameState
 @if (gameState.IsInitialized && gameState.Game.State == NIM.GameState.GameOver)
@@ -23,7 +22,6 @@
                 <div class="form-group">
                     <PlayerSelector Number="i" Model="PossiblePlayers[i]" OnAiPlayerChange="OnAiPlayerChange" OnClick="OnClick" OnLevelChange="OnLevelChange" AddNew="AddNew" OnFocusOut="OnFocusOut" />
                 </div>
-
             }
         </form>
         <button class="btn btn-success" @onclick="AddNew">Add Player</button>
@@ -98,6 +96,7 @@
     {
         var players = PossiblePlayers.Select(p => p.IsAiPlayer ? p.SelectedAiPlayer : new Human(p.Name ?? $"Player {p.Number + 1}")).ToList();
 
+        Rules rules = gameState.RulesBuilder?.Players(players.Count).Create() ?? Rules.Default;
         gameState.Game = new Game(rules, players);
         navigationManager.NavigateTo("nim");
         // get move
