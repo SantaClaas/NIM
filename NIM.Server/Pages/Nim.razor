@@ -1,4 +1,4 @@
-﻿@page "/nim"
+@page "/nim"
 @inject NavigationManager navigationManager
 @inject GameState gameState
 @inject Rules rules
@@ -62,6 +62,10 @@
         if (gameState.Game.CurrentPlayer is Models.Human human)
         {
             human.NextMove = gameState.CurrentMove;
+        }
+        else
+        {
+            Task.Delay(2000);
         }
         // get move
         gameState.Game.Step();
