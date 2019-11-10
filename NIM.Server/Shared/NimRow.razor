@@ -1,14 +1,17 @@
 ﻿@inject GameState gameState
-<div class="row">
-    <div class="col-8 p-2" style="height: 10rem">
+<div class="row justify-content-between">
+    <div class="col p-2 flex-shrink-1" style="height: 10rem">
         @for (int i = 0; i < Count; ++i)
         {
             <img src="https://cdn.pixabay.com/photo/2016/10/05/19/08/match-1717377_960_720.png" class="img-fluid" width="100" height="100" />
         }
     </div>
-    <div class="col-4">
-        <button class="btn btn-info" @onclick="OnClick" disabled="@(!CanTake)"><i class="oi oi-minus" /></button>
-    </div>
+    @if (Count > 0)
+    {
+        <div class="col-auto">
+            <button class="btn btn-info" @onclick="OnClick" disabled="@(!CanTake)"><i class="oi oi-minus" /></button>
+        </div>
+    }
 </div>
 @code {
     [Parameter]

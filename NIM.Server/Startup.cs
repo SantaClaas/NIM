@@ -69,7 +69,9 @@ namespace NIM.Server
             set => rules = value;
 
         }
+        public List<Player> Players { get; set; }
         public Rules.Builder RulesBuilder { get; set; }
         private Rules rules;
+        public Dictionary<Player,int> SummaryTakes { get; set; }
     }
 }
