@@ -61,7 +61,7 @@
 
         </form>
         <button class="btn btn-success" @onclick="AddNew">Add Player</button>
-        <button class="btn btn-danger" @onclick="RemoveLatest">Remove Player</button>
+        <button class="btn btn-danger" @onclick="RemoveLatest" disabled="@(PossiblePlayers.Count <= 2)">Remove Player</button>
         <button class="btn btn-primary" @onclick="@OnSubmit" disabled="@(!CanSubmit)"><i class="oi oi-media-play" /> Start </button>
         <a href="/settings" class="btn btn-secondary active"><i class="oi oi-cog" /></a>
     </div>
