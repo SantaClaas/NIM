@@ -1,8 +1,0 @@
-﻿@page "/gameover"
-@inject NIM.Server.GameState  gameState
-<h1>Winners:</h1>
-@foreach (var winner in gameState.Game.GetWinningPlayers())
-{
-
-    <h1>@winner.Name</h1>
-}
