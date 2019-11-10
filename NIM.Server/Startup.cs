@@ -1,15 +1,8 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using NIM.Server.Models;
-
 namespace NIM.Server
 {
     public class Startup
@@ -28,7 +21,7 @@ namespace NIM.Server
             services.AddRazorPages();
             services.AddServerSideBlazor();
 
-            services.AddSingleton<GameState>();
+            services.AddSingleton<Models.GameState>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -54,24 +47,5 @@ namespace NIM.Server
                 endpoints.MapFallbackToPage("/_Host");
             });
         }
-    }
-    public class GameState
-    {
-        public int[] Field { get; set; }
-        public int[] CurrentMove { get; set; }
-        public bool IsInitialized => Game != null;
-
-        public Settings Settings { get; set; } 
-        public Game Game { get; set; }
-        public Rules Rules
-        {
-            get => rules ?? RulesBuilder?.Create() ?? Rules.Default;
-            set => rules = value;
-
-        }
-        public List<Player> Players { get; set; }
-        public Rules.Builder RulesBuilder { get; set; }
-        private Rules rules;
-        public Dictionary<Player,int> SummaryTakes { get; set; }
     }
 }

@@ -1,6 +1,6 @@
 ﻿@page "/nim"
 @inject NavigationManager navigationManager
-@inject GameState gameState
+@inject Models.GameState gameState
 <div class="row justify-content-center">
     <div class="col">
         <h1>Nim game</h1>
@@ -54,7 +54,7 @@
 
 <div class="row justify-content-end">
     <div class="col-auto">
-        <button class="btn btn-info" @onclick="@EndTurn" disabled="@(!CanEnd)">End turn</button>
+        <button class="btn btn-info" @onclick="EndTurn" disabled="@(!CanEnd)">End turn</button>
     </div>
 </div>
 @code {
