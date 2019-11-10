@@ -5,8 +5,12 @@
 @inject GameState gameState
 @if (gameState.IsInitialized && gameState.Game.State == NIM.GameState.GameOver)
 {
-    <div class="alert alert-success">
-        Congratulations @(string.Join(',', gameState.Game.GetWinningPlayers().Select(p => p.Name))) you won!
+    <div class="row justify-content-center">
+        <div class="col col-lg-3 col-md-5 col-sm-10">
+            <div class="alert alert-success">
+                Congratulations @(string.Join(',', gameState.Game.GetWinningPlayers().Select(p => p.Name))), you won!
+            </div>
+        </div>
     </div>
 }
 
@@ -82,10 +86,10 @@
 
     void OnSubmit()
     {
-        var players = PossiblePlayers.Select((p, i) => p.IsAiPlayer ? new AiPlayerMinMax(p.Name ?? $"Player {i + 1} (Computer)", p.DifficultyAdvancedAi) : new Human(p.Name ?? $"Player {i + 1}") as Player).ToList();
-
-        Rules rules = gameState.RulesBuilder?.Players(players.Count).Create() ?? Rules.Default;
-        gameState.Game = new Game(rules, players);
+        gameState.Players = PossiblePlayers.Select((p, i) => p.IsAiPlayer ? new AiPlayerMinMax(p.Name ?? $"Player {i + 1} (Computer)", p.DifficultyAdvancedAi) : new Human(p.Name ?? $"Player {i + 1}") as Player).ToList();
+        gameState.SummaryTakes = gameState.Players.ToDictionary(p => p, p => 0);
+        Rules rules = gameState.RulesBuilder?.Players(gameState.Players.Count).Create() ?? Rules.Default;
+        gameState.Game = new Game(rules, gameState.Players);
         navigationManager.NavigateTo("nim");
         // get move
         gameState.Game.Step();
