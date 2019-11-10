@@ -20,12 +20,10 @@
                         <img src="https://cdn.pixabay.com/photo/2016/10/05/19/08/match-1717377_960_720.png" class="img-fluid" width="100" height="100" />
                     }
                 </div>
-                @if (gameState.Field[i] > 0)
-                {
-                    <div class="col-auto">
-                        <button class="btn btn-info" @onclick="() => Take(index)" disabled="@(!CanTake(index))"><i class="oi oi-minus" /></button>
-                    </div>
-                }
+                <div class="col-auto">
+                    <button class="btn btn-info" @onclick="() => Take(index)" disabled="@(!CanTake(index))"><i class="oi oi-minus" /></button>
+                    <button class="btn btn-info" @onclick="() => Add(index)" disabled="@(!CanAdd(index))"><i class="oi oi-plus" /></button>
+                </div>
             </div>
         }
     </div>
@@ -39,12 +37,16 @@
                 </div>
             </div>
             <div class="row">
-                <div class="col" style="height: 5rem">
-                    @for (int j = 0; j < gameState.SummaryTakes[gameState.Players[i]]; ++j)
-                    {
-                        <img src="https://cdn.pixabay.com/photo/2016/10/05/19/08/match-1717377_960_720.png" class="img-fluid" width="50" height="50" />
-                    }
+                <div class="col-3 no-gutters" hidden="@(gameState.SummaryTakes[gameState.Players[i]] < 1)">
+                    <img src="https://cdn.pixabay.com/photo/2016/10/05/19/08/match-1717377_960_720.png" class="img-fluid" />
                 </div>
+                @for (int j = 1; j < gameState.SummaryTakes[gameState.Players[i]]; ++j)
+                {
+
+                    <div class="col-3 no-gutters" >
+                        <img src="https://cdn.pixabay.com/photo/2016/10/05/19/08/match-1717377_960_720.png" class="img-fluid" />
+                    </div>
+                }
             </div>
         }
     </div>
@@ -56,7 +58,13 @@
     </div>
 </div>
 @code {
+    bool CanAdd(int row)
+    {
+        int[] futureMove = gameState.CurrentMove.Clone() as int[];
+        --futureMove[row];
 
+        return gameState.Rules.IsMoveValid(new Move(futureMove), gameState.Game.CurrentPlayground) || (gameState.CurrentMove.Any(i => i > 0) && !futureMove.Any(i => i > 0));
+    }
 
     bool CanTake(int row)
     {
@@ -64,6 +72,16 @@
         ++futureMove[row];
 
         return gameState.Rules.IsMoveValid(new Move(futureMove), gameState.Game.CurrentPlayground);
+    }
+    void Add(int row)
+    {
+        if (!CanAdd(row))
+            return;
+        ++gameState.Field[row];
+        --gameState.CurrentMove[row];
+        --gameState.SummaryTakes[gameState.Game.CurrentPlayer];
+        this.StateHasChanged();
+
     }
 
     void Take(int row)
@@ -111,10 +129,6 @@
         if (gameState.Game.CurrentPlayer is Models.Human human)
         {
             human.NextMove = gameState.CurrentMove;
-        }
-        else
-        {
-            Task.Delay(2000);
         }
         // get move
         gameState.Game.Step();
