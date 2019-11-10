@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace NIM.Client.Models
+namespace NIM.Shared.Models
 {
     public class Settings
     {

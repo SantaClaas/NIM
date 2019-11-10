@@ -11,6 +11,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NIM.Server", "NIM.Server\NI
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NIM.Client", "NIM.Client\NIM.Client.csproj", "{EFDB2139-DDB8-415F-8524-785E9D63934F}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NIM.Shared", "NIM.Shared\NIM.Shared.csproj", "{250DA1AE-6E6B-43EC-89D6-AB53C2C1ABAF}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -69,6 +71,18 @@ Global
 		{EFDB2139-DDB8-415F-8524-785E9D63934F}.Release|x64.Build.0 = Release|Any CPU
 		{EFDB2139-DDB8-415F-8524-785E9D63934F}.Release|x86.ActiveCfg = Release|Any CPU
 		{EFDB2139-DDB8-415F-8524-785E9D63934F}.Release|x86.Build.0 = Release|Any CPU
+		{250DA1AE-6E6B-43EC-89D6-AB53C2C1ABAF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{250DA1AE-6E6B-43EC-89D6-AB53C2C1ABAF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{250DA1AE-6E6B-43EC-89D6-AB53C2C1ABAF}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{250DA1AE-6E6B-43EC-89D6-AB53C2C1ABAF}.Debug|x64.Build.0 = Debug|Any CPU
+		{250DA1AE-6E6B-43EC-89D6-AB53C2C1ABAF}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{250DA1AE-6E6B-43EC-89D6-AB53C2C1ABAF}.Debug|x86.Build.0 = Debug|Any CPU
+		{250DA1AE-6E6B-43EC-89D6-AB53C2C1ABAF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{250DA1AE-6E6B-43EC-89D6-AB53C2C1ABAF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{250DA1AE-6E6B-43EC-89D6-AB53C2C1ABAF}.Release|x64.ActiveCfg = Release|Any CPU
+		{250DA1AE-6E6B-43EC-89D6-AB53C2C1ABAF}.Release|x64.Build.0 = Release|Any CPU
+		{250DA1AE-6E6B-43EC-89D6-AB53C2C1ABAF}.Release|x86.ActiveCfg = Release|Any CPU
+		{250DA1AE-6E6B-43EC-89D6-AB53C2C1ABAF}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

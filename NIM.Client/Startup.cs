@@ -7,7 +7,7 @@ namespace NIM.Client
     {
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddSingleton<Models.GameState>();
+            services.AddSingleton<NIM.Shared.Models.GameState>();
         }
 
         public void Configure(IComponentsApplicationBuilder app)

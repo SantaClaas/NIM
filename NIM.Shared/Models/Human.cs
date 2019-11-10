@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace NIM.Client.Models
+namespace NIM.Shared.Models
 {
     public class Human : Player
     {

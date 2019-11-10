@@ -1,7 +1,7 @@
-﻿using NIM.Client.Models;
+﻿using NIM.Shared.Models;
 using System.Collections.Generic;
 
-namespace NIM.Client.ViewModels
+namespace NIM.Shared.ViewModels
 {
     public class SettingsViewModel
     {
