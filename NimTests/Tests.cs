@@ -130,6 +130,75 @@ namespace NimTests
         }
 
         [Test]
+        public void Test_Rules_Builder_ParseMoves()
+        {
+            Rules.Builder builder = Rules.Build(new[] { 10, 20 });
+            builder.ParseMoveRules("1");
+            Rules rules = builder.Create();
+
+            Assert.AreEqual(2, rules.ValidMoves.Count);
+            Assert.True(rules.ValidMoves.Contains(new Move(new[] { 0, 1 })));
+            Assert.True(rules.ValidMoves.Contains(new Move(new[] { 1, 0 })));
+
+
+            builder = Rules.Build(new[] { 10, 20 });
+            builder.ParseMoveRules("2-3");
+            rules = builder.Create();
+
+            Assert.AreEqual(4, rules.ValidMoves.Count);
+            Assert.True(rules.ValidMoves.Contains(new Move(new[] { 0, 2 })));
+            Assert.True(rules.ValidMoves.Contains(new Move(new[] { 2, 0 })));
+            Assert.True(rules.ValidMoves.Contains(new Move(new[] { 0, 3 })));
+            Assert.True(rules.ValidMoves.Contains(new Move(new[] { 3, 0 })));
+
+
+            builder = Rules.Build(new[] { 10, 20 });
+            builder.ParseMoveRules("2-3,0-1");
+            rules = builder.Create();
+
+            Assert.AreEqual(8, rules.ValidMoves.Count);
+            Assert.True(rules.ValidMoves.Contains(new Move(new[] { 0, 2 })));
+            Assert.True(rules.ValidMoves.Contains(new Move(new[] { 2, 0 })));
+            Assert.True(rules.ValidMoves.Contains(new Move(new[] { 0, 3 })));
+            Assert.True(rules.ValidMoves.Contains(new Move(new[] { 3, 0 })));
+            Assert.True(rules.ValidMoves.Contains(new Move(new[] { 1, 2 })));
+            Assert.True(rules.ValidMoves.Contains(new Move(new[] { 2, 1 })));
+            Assert.True(rules.ValidMoves.Contains(new Move(new[] { 1, 3 })));
+            Assert.True(rules.ValidMoves.Contains(new Move(new[] { 3, 1 })));
+
+
+            builder = Rules.Build(new[] { 10, 20 });
+            builder.ParseMoveRules("2-3;1,1");
+            rules = builder.Create();
+
+            Assert.AreEqual(5, rules.ValidMoves.Count);
+            Assert.True(rules.ValidMoves.Contains(new Move(new[] { 0, 2 })));
+            Assert.True(rules.ValidMoves.Contains(new Move(new[] { 2, 0 })));
+            Assert.True(rules.ValidMoves.Contains(new Move(new[] { 0, 3 })));
+            Assert.True(rules.ValidMoves.Contains(new Move(new[] { 3, 0 })));
+            Assert.True(rules.ValidMoves.Contains(new Move(new[] { 1, 1 })));
+
+
+            builder = Rules.Build(new[] { 10, 20 });
+            builder.ParseMoveRules("2-3;1,1;3-4,2-3");
+            rules = builder.Create();
+
+            Assert.AreEqual(12, rules.ValidMoves.Count);
+            Assert.True(rules.ValidMoves.Contains(new Move(new[] { 0, 2 })));
+            Assert.True(rules.ValidMoves.Contains(new Move(new[] { 2, 0 })));
+            Assert.True(rules.ValidMoves.Contains(new Move(new[] { 0, 3 })));
+            Assert.True(rules.ValidMoves.Contains(new Move(new[] { 3, 0 })));
+            Assert.True(rules.ValidMoves.Contains(new Move(new[] { 1, 1 })));
+            Assert.True(rules.ValidMoves.Contains(new Move(new[] { 3, 2 })));
+            Assert.True(rules.ValidMoves.Contains(new Move(new[] { 4, 2 })));
+            Assert.True(rules.ValidMoves.Contains(new Move(new[] { 3, 3 })));
+            Assert.True(rules.ValidMoves.Contains(new Move(new[] { 4, 3 })));
+            Assert.True(rules.ValidMoves.Contains(new Move(new[] { 2, 3 })));
+            Assert.True(rules.ValidMoves.Contains(new Move(new[] { 2, 4 })));
+            Assert.True(rules.ValidMoves.Contains(new Move(new[] { 3, 4 })));
+        }
+
+        [Test]
         public void Test_Rules_ValidMoves()
         {
             Rules rules = Rules.Build(new[] { 1, 2, 3 }).AddSingleRowRules(1, 1).Create();
@@ -171,7 +240,7 @@ namespace NimTests
         [Test]
         public void Test_AdvancedAi()
         {
-            AiPlayerMinMax teacher=new AiPlayerMinMax("Teacher",0f,Rules.Default);
+            AiPlayerMinMax teacher = new AiPlayerMinMax("Teacher", 0f, Rules.Default);
 
 
             AiPlayerMinMax playerA = new AiPlayerMinMax("A", 1f, teacher);
