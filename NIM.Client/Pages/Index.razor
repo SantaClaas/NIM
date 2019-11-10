@@ -1,7 +1,124 @@
 ﻿@page "/"
+@page "/index"
+@using Models
+@inject NavigationManager navigationManager
+@inject GameState gameState
+@if (gameState.IsInitialized && gameState.Game.State == NIM.GameState.GameOver)
+{
+    <div class="row justify-content-center">
+        <div class="col col-lg-3 col-md-5 col-sm-10">
+            <div class="alert alert-success">
+                Congratulations @(string.Join(",", gameState.Game.GetWinningPlayers().Select(p => p.Name))), you won!
+            </div>
+        </div>
+    </div>
+}
 
-<h1>Hello, world!</h1>
+<div class="row justify-content-center">
+    <h1>New Game</h1>
+</div>
 
-Welcome to your new app.
+<div class="row justify-content-center">
+    <div class="col col-lg-3 col-md-5 col-sm-10 justify-content-center">
+        <form>
 
-<SurveyPrompt Title="How is Blazor working for you?" />
+            @for (int i = 0; i < PossiblePlayers.Count; ++i)
+            {
+                int index = i;
+
+                <div class="form-group ">
+                    <label for="playerName @index">@($"Player {index + 1}"):</label>
+                    <input type="text" class="form-control" id="playerName @index" placeholder="@($"Player {index + 1}")" value="@PossiblePlayers[index].Name" @oninput="(e)=>OnInput(e,index)" />
+                    @if (!PossiblePlayers[index].IsNameValid)
+                    {
+                        <small class="text-danger">Sorry, this name has already been taken</small>
+                    }
+
+
+                    @if (index != 0)
+                    {
+                        <div class="form-check">
+                            <input type="checkbox" class="form-check-input" id="checkIsAiPlayer @index" @bind="PossiblePlayers[index].IsAiPlayer" />
+                            <label class="form-check-label" for="checkIsAiPlayer @index">Ai Player</label>
+                        </div>
+                    }
+                    @if (PossiblePlayers[index].IsAiPlayer)
+                    {
+                        <div class="form-control-range form-row">
+                            <div class="col-auto">
+                                <label for="aiLevel @index">Difficulty:</label>
+                            </div>
+                            <div class="col-1">
+                                <label>@PossiblePlayers[index].DifficultyAdvancedAi</label>
+                            </div>
+                            <div class="col-auto flex-fill">
+                                <input type="range" class="custom-range" id="aiLevel @index" min="-1" max="1" step="0.1" @bind="PossiblePlayers[index].DifficultyAdvancedAi" @bind:event="oninput" />
+                            </div>
+                        </div>
+                    }
+                </div>
+            }
+
+        </form>
+        <button class="btn btn-success" @onclick="AddNew">Add Player</button>
+        <button class="btn btn-danger" @onclick="RemoveLatest" disabled="@(PossiblePlayers.Count <= 2)">Remove Player</button>
+        <button class="btn btn-primary" @onclick="@OnSubmit" disabled="@(!CanSubmit)"><i class="oi oi-media-play" /> Start </button>
+        <a href="/settings" class="btn btn-secondary active"><i class="oi oi-cog" /></a>
+    </div>
+</div>
+
+@code{
+
+    private List<PlayerSelectorModel> PossiblePlayers { get; set; }
+    private string GetValidationCss(PlayerSelectorModel model) => IsNameUnique(model.Name) ? "was-validated" : string.Empty;
+    bool CanSubmit { get; set; } = true;
+    protected override void OnInitialized()
+    {
+
+        PossiblePlayers = Enumerable.Range(1, 2).Select(i => new PlayerSelectorModel
+        {
+            IsAiPlayer = false,
+            DifficultyAdvancedAi = 0f,
+            IsNameValid = true,
+        })
+        .ToList();
+    }
+
+    void OnSubmit()
+    {
+        gameState.Players = PossiblePlayers.Select((p, i) => p.IsAiPlayer ? new AiPlayerMinMax(p.Name ?? $"Player {i + 1} (Computer)", p.DifficultyAdvancedAi) : new Human(p.Name ?? $"Player {i + 1}") as Player).ToList();
+        gameState.SummaryTakes = gameState.Players.ToDictionary(p => p, p => 0);
+        Rules rules = gameState.RulesBuilder?.Players(gameState.Players.Count).Create() ?? Rules.Default;
+        gameState.Game = new Game(rules, gameState.Players);
+        navigationManager.NavigateTo("nim");
+        // get move
+        gameState.Game.Step();
+    }
+
+    bool IsNameUnique(string name) => PossiblePlayers.Count(p => p.Name == name) == 1;
+
+    void AddNew()
+    {
+
+        PossiblePlayers.Add(new PlayerSelectorModel
+        {
+            IsAiPlayer = false,
+            DifficultyAdvancedAi = 0f,
+        });
+        StateHasChanged();
+    }
+
+    void RemoveLatest()
+    {
+        if (PossiblePlayers.Count == 2) return;
+        PossiblePlayers.RemoveAt(PossiblePlayers.Count - 1);
+        StateHasChanged();
+    }
+
+    void OnInput(ChangeEventArgs e, int index)
+    {
+        PossiblePlayers[index].Name = e.Value as string;
+        PossiblePlayers[index].IsNameValid = IsNameUnique(e.Value as string);
+        CanSubmit = !PossiblePlayers.Any(p => !p.IsNameValid);
+    }
+}

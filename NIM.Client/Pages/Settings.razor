@@ -1,0 +1,101 @@
+﻿@using ViewModels
+@inject Models.GameState gameState
+@page "/settings"
+<div class="row justify-content-center">
+    <div class="col-auto">
+        <h1>Settings</h1>
+    </div>
+</div>
+<div class="row justify-content-center">
+    <div class="col-sm-7 col-md-5 col-lg-4 col-xl-3">
+        <div class="card">
+            <div class="card-header">
+                <h2 class="card-title">Playground</h2>
+            </div>
+            <div class="card-body py-2">
+                <div class="form-group row mb-0">
+                    <div class="col-8">
+                        <h5 class="mb-0 mt-2 card-title">Rows</h5>
+                    </div>
+                    <div class="col-4">
+                        <input type="number" class="form-control" @bind="ViewModel.RowsCount" min="1" />
+                    </div>
+                </div>
+            </div>
+            <ul class="list-group  list-group-flush">
+                @*<li class="list-group-item  p-1">
+                        <div class="form-group row m-0" id="rowCount">
+                            <div class="col-8 col-sm-8">
+                                <label class="mt-2">Row Number</label>
+                            </div>
+                            <div class="col-4 col-sm-4">
+                                <label class="mt-2">Match Count</label>
+                            </div>
+                        </div>
+                    </li>*@
+                @for (int i = 0; i < ViewModel.RowsCount; ++i)
+                {
+                    // need to capture i because otherwise all list items will use the same i (which is out of boundaries)
+                    var index = i;
+                    <li class="list-group-item p-1 list-group-item-light">
+                        <div class="form-group row m-0" id="rowCount">
+                            <div class="col-8 col-sm-8 pl-4">
+                                <label class="mt-2" for="rowsCount">Row @(i + 1)</label>
+                            </div>
+                            <div class="col-4 col-sm-4">
+                                <input type="number" class="form-control" id="rowsCount" @bind-value="ViewModel.Rows[index]" @bind-value:event="oninput" min="1" />
+                            </div>
+                        </div>
+                    </li>
+
+                }
+            </ul>
+        </div>
+    </div>
+</div>
+<div class="row justify-content-center">
+    <div class="col-sm-7 col-md-5 col-lg-4 col-xl-3">
+        <label for="takeMax">Max takes per row</label>
+        <div class="row">
+            <div class="col-5">
+                <input type="number" class="form-control" id="takeMax" @bind="ViewModel.ChangesPerRow" min="@ViewModel.MinChangesPerRow" S />
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row justify-content-center">
+    <div class="col-sm-7 col-md-5 col-lg-4 col-xl-3">
+        <label for="winCondition">Last move</label>
+        <div class="form-group" id="winCondition">
+            <div class="form-check">
+                @* Can't use binding on radio yet this is a workaround *@
+                <input class="form-check-input" name="winConditionRadio" type="radio" id="lastMoveWinsRadio" checked="@ViewModel.LastMoveWins" @onchange="() => ViewModel.LastMoveWins = true" />
+                <label class="form-check-label" for="lastMoveWinsRadio">wins</label>
+            </div>
+            <div class="form-check">
+                @* Can't use binding on radio yet this is a workaround *@
+                <input class="form-check-input" name="winConditionRadio" type="radio" id="lastMoveLosesRadio" checked="@(!ViewModel.LastMoveWins)" @onchange="() => ViewModel.LastMoveWins = false" />
+                <label class="form-check-label" for="lastMoveLosesRadio">loses</label>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row justify-content-center">
+    <div class="col-sm-7 col-md-5 col-lg-4 col-xl-3">
+        <div class="row justify-content-end">
+            <div class="col-auto">
+                <a class="btn btn-info" href="/" @onclick="()=>ViewModel.OnSave()">Save</a>
+            </div>
+        </div>
+    </div>
+</div>
+@code {
+    public SettingsViewModel ViewModel { get; set; }
+
+    protected override void OnInitialized()
+    {
+        ViewModel = new SettingsViewModel(gameState);
+
+    }
+
+}
