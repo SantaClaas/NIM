@@ -10,11 +10,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\NIM\NIM.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Views\" />
+    <ProjectReference Include="..\NIM.Shared\NIM.Shared.csproj" />
   </ItemGroup>
 
 </Project>

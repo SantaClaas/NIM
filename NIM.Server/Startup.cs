@@ -21,7 +21,7 @@ namespace NIM.Server
             services.AddRazorPages();
             services.AddServerSideBlazor();
 
-            services.AddSingleton<Models.GameState>();
+            services.AddSingleton<NIM.Shared.Models.GameState>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

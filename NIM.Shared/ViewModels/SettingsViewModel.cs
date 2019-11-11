@@ -29,9 +29,12 @@ namespace NIM.Shared.ViewModels
         public bool LastMoveWins { get; set; } = true;
         private readonly Models.GameState state;
         private int changesPerRow = 3;
-
+        private Models.GameState GameState { get; set; }
+        public string Skin { get; set; }
         public SettingsViewModel(Models.GameState gameState)
         {
+            GameState = gameState;
+            Skin = gameState.Skin;
             gameState.Settings ??= new Settings
             {
                 Rows = new List<int> { 1, 2, 3, 4 },
@@ -50,6 +53,7 @@ namespace NIM.Shared.ViewModels
             b = LastMoveWins ? b.LastMoveWins() : b.LastMoveLooses();
             b.AddSingleRowRules(1, ChangesPerRow);
             state.RulesBuilder = b;
+            GameState.Skin = Skin;
         }
     }
 }
