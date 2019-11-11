@@ -13,15 +13,19 @@
         @for (int i = 0; i < gameState.Field.Length; ++i)
         {
             int index = i;
-            <div class="row justify-content-between">
-                <div class="col p-2 flex-shrink-1" style="height: 10rem">
-                    @for (int j = 0; j < gameState.Field[i]; ++j)
-                    {
-                        <img src="@gameState.Skin" class="img-fluid" width="100" height="100" />
-                    }
+            <div class="row justify-content-lg-between">
+                <div class="col-sm-4 col-lg-8">
+                    <div class="row flex-shrink-0">
+                        @for (int j = 0; j < gameState.Field[i]; ++j)
+                        {
+                            <div class="col-2 p-2 no-gutters">
+                                <img src="@gameState.Skin" class="img-fluid" />
+                            </div>
+                        }
+                    </div>
                 </div>
                 <div class="col-auto">
-                    <button class="btn btn-info" @onclick="() => Take(index)" disabled="@(!CanTake(index))"><i class="oi oi-minus" /></button>
+                    <button class="btn btn-info my-5" @onclick="() => Take(index)" disabled="@(!CanTake(index))"><i class="oi oi-minus" /></button>
                     <button class="btn btn-info" @onclick="() => Add(index)" disabled="@(!CanAdd(index))"><i class="oi oi-plus" /></button>
                 </div>
             </div>
@@ -40,7 +44,7 @@
                 @for (int j = 0; j < gameState.SummaryTakes[gameState.Players[i]]; ++j)
                 {
 
-                    <div class="col-3 no-gutters" >
+                    <div class="col-3 no-gutters">
                         <img src="@gameState.Skin" class="img-fluid" />
                     </div>
                 }
