@@ -1,7 +1,7 @@
 ﻿@using ViewModels
 @inject Models.GameState gameState
 @page "/settings"
-<div class="row justify-content-center">
+<div class="row justify-content-center" @onclick="@(() => ClickCounter++)">
     <div class="col-auto">
         <h1>Settings</h1>
     </div>
@@ -58,7 +58,14 @@
         <label for="takeMax">Max takes per row</label>
         <div class="row">
             <div class="col-5">
-                <input type="number" class="form-control" id="takeMax" @bind="ViewModel.ChangesPerRow" min="@ViewModel.MinChangesPerRow"/>
+                @if (ClickCounter < 9)
+                {
+                    <input type="number" class="form-control" id="takeMax" @bind="ViewModel.ChangesPerRow" min="@ViewModel.MinChangesPerRow" />
+                }
+                else
+                {
+                    <input type="text" class="form-control" id="takeMax" @bind="ViewModel.TakeRange" />
+                }
             </div>
         </div>
     </div>
@@ -68,7 +75,7 @@
         <label for="skin" class="font-italic">Match Skin</label>
         <div class="row">
             <div class="col-5">
-                <input type="text" class="form-control" id="skin" @bind="ViewModel.Skin"/>
+                <input type="text" class="form-control" id="skin" @bind="ViewModel.Skin" />
             </div>
         </div>
     </div>
@@ -101,7 +108,23 @@
 </div>
 @code {
     public SettingsViewModel ViewModel { get; set; }
+    private int clickCounter;
+    private int ClickCounter
+    {
+        get => clickCounter; set
+        {
 
+            if (ClickCounter == 9)
+            {
+                StateHasChanged();
+            }
+            if(value > 9)
+            {
+                return;
+            }
+            clickCounter = value;
+        }
+    }
     protected override void OnInitialized()
     {
         ViewModel = new SettingsViewModel(gameState);

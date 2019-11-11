@@ -22,7 +22,7 @@ namespace NIM.Shared.ViewModels
                 }
             }
         }
-
+        public string TakeRange { get; set; }
         public List<int> Rows { get; set; }
         public int ChangesPerRow { get => changesPerRow; set => changesPerRow = value >= 1 ? value : changesPerRow; }
         public int MinChangesPerRow { get; set; } = 1;
@@ -49,9 +49,17 @@ namespace NIM.Shared.ViewModels
 
         public void OnSave()
         {
+
             var b = Rules.Build(Rows);
             b = LastMoveWins ? b.LastMoveWins() : b.LastMoveLooses();
-            b.AddSingleRowRules(1, ChangesPerRow);
+            if (!string.IsNullOrWhiteSpace(TakeRange))
+            {
+                b.ParseMoveRules(TakeRange);
+            }
+            else
+            {
+                b.AddSingleRowRules(1, ChangesPerRow);
+            }
             state.RulesBuilder = b;
             GameState.Skin = Skin;
         }
