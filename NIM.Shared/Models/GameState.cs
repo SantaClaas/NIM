@@ -8,7 +8,7 @@ namespace NIM.Shared.Models
     public class GameState
     {
 
-        public string Skin { get; set; } = "https://cdn.pixabay.com/photo/2016/10/05/19/08/match-1717377_960_720.png";
+        public string Skin { get; set; } = "Torch.png"; //"https://cdn.pixabay.com/photo/2016/10/05/19/08/match-1717377_960_720.png";
         public int[] Field { get; set; }
         public int[] CurrentMove { get; set; }
         public bool IsInitialized => Game != null;

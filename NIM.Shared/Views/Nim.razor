@@ -9,7 +9,7 @@
 </div>
 
 <div class="row ">
-    <div class="col-8">
+    <div class="col-sm-12 col-lg-8">
         @for (int i = 0; i < gameState.Field.Length; ++i)
         {
             int index = i;
@@ -27,7 +27,7 @@
             </div>
         }
     </div>
-    <div class="col-4">
+    <div class="col-sm-12 col-lg-4 flex-">
         <h3>Matches taken</h3>
         @for (int i = 0; i < gameState.Players.Count; ++i)
         {
