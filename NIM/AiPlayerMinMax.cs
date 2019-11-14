@@ -244,14 +244,14 @@ namespace NIM
 
         public void Generate()
         {
-            Dictionary<Playground, Node> tree = GenerateTree(Rules, out List<Playground> leafs);
+            Dictionary<Playground, Node> tree = GenerateTree(Rules, out List<Node> leafs);
 
             Dictionary<Playground, MoveChances> chances = new Dictionary<Playground, MoveChances>();
             Queue<Node> nodeQueue = new Queue<Node>();
-            HashSet<Playground> inQueue = new HashSet<Playground>();
-            foreach (Playground leaf in leafs)
+            HashSet<Node> inQueue = new HashSet<Node>();
+            foreach (Node leaf in leafs)
             {
-                nodeQueue.Enqueue(tree[leaf]);
+                nodeQueue.Enqueue(leaf);
                 inQueue.Add(leaf);
             }
 
@@ -259,7 +259,7 @@ namespace NIM
 
             Node currentNode;
             MoveChances[] childChances = new MoveChances[Rules.ValidMoves.Count];
-            Playground playground;
+            Node node;
             bool canEvaluate;
             while (nodeQueue.Count > 0)
             {
@@ -268,11 +268,11 @@ namespace NIM
                 canEvaluate = true;
                 for (int i = 0; i < currentNode.Children.Length; ++i)
                 {
-                    playground = currentNode.Children[i];
+                    node = currentNode.Children[i];
 
-                    if (playground is null)
+                    if (node.Current is null)
                         childChances[i] = none;
-                    else if (!chances.TryGetValue(playground, out childChances[i]))
+                    else if (!chances.TryGetValue(node.Current, out childChances[i]))
                     {
                         canEvaluate = false;
                         break;
@@ -289,28 +289,31 @@ namespace NIM
 
                 for (int i = 0; i < currentNode.Parents.Length; ++i)
                 {
-                    playground = currentNode.Parents[i];
+                    node = currentNode.Parents[i];
 
-                    if (playground is null)
+                    if (node.Current is null)
                         continue;
 
-                    if (inQueue.Contains(playground))
+                    if (inQueue.Contains(node))
                         continue;
 
-                    nodeQueue.Enqueue(tree[playground]);
-                    inQueue.Add(playground);
+                    nodeQueue.Enqueue(node);
+                    inQueue.Add(node);
                 }
             }
         }
 
-        private static Dictionary<Playground, Node> GenerateTree(Rules rules, out List<Playground> leafs)
+        private static Dictionary<Playground, Node> GenerateTree(Rules rules, out List<Node> leafs)
         {
+            leafs = new List<Node>();
+
             Dictionary<Playground, Node> tree = new Dictionary<Playground, Node>();
             Stack<Node> generations = new Stack<Node>();
 
             generations.Push(new Node(rules.StartingField, rules.ValidMoves.Count));
 
-            leafs = new List<Playground>();
+            Node none = new Node(null, rules.ValidMoves.Count);
+
             Node current;
             Playground next;
             Node nextGeneration;
@@ -322,24 +325,29 @@ namespace NIM
                 childrenCount = 0;
                 for (int i = 0; i < current.Children.Length; ++i)
                 {
+
                     if (current.Current.TryApplyValidMove(rules.ValidMoves[i], out next))
                     {
                         ++childrenCount;
                         if (tree.TryGetValue(next, out nextGeneration))
                         {
                             next = nextGeneration.Current;
-                            nextGeneration.Parents[i] = current.Current;
+                            nextGeneration.Parents[i] = current;
+                            current.Children[i] = nextGeneration;
                         }
                         else
                         {
-                            generations.Push(new Node(next, rules.ValidMoves.Count) { Parents = { [i] = current.Current } });
+                            current.Children[i] = new Node(next, rules.ValidMoves.Count) { Parents = { [i] = current } };
+                            generations.Push(current.Children[i]);
                         }
                     }
-
-                    current.Children[i] = next;
+                    else
+                    {
+                        current.Children[i] = none;
+                    }
                 }
                 if (childrenCount == 0)
-                    leafs.Add(current.Current);
+                    leafs.Add(current);
 
                 tree[current.Current] = current;
             }
@@ -349,20 +357,20 @@ namespace NIM
 
         private struct Node
         {
-            public Playground[] Parents;
+            public Node[] Parents;
             public Playground Current;
-            public Playground[] Children;
+            public Node[] Children;
 
             public Node(Playground playground, int moveCount)
             {
                 Current = playground;
-                Parents = new Playground[moveCount];
-                Children = new Playground[moveCount];
+                Parents = new Node[moveCount];
+                Children = new Node[moveCount];
             }
 
             public override string ToString()
             {
-                return $"{Current}, {Parents.Count(p => !(p is null))} Parent(s), {Children.Count(c => !(c is null))} Child(ren)";
+                return $"{Current}, {Parents.Count(p => !(p.Current is null))} Parent(s), {Children.Count(c => !(c.Current is null))} Child(ren)";
             }
         }
 
