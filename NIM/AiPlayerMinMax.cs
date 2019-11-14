@@ -228,4 +228,89 @@ namespace NIM
             return root;
         }
     }
+
+    public class GamePlan
+    {
+        public Rules Rules { get; }
+
+        private readonly Dictionary<Playground, List<Tuple<int, float, float>>> _chances;
+
+        public GamePlan(Rules rules)
+        {
+            Rules = rules;
+            _chances = new Dictionary<Playground, List<Tuple<int, float, float>>>();
+        }
+
+        public void Generate()
+        {
+            Dictionary<Playground, Generation> generateTree = GenerateTree(Rules);
+        }
+
+        private static Dictionary<Playground, Generation> GenerateTree(Rules rules)
+        {
+            Dictionary<Playground, Generation> tree = new Dictionary<Playground, Generation>();
+            Stack<Generation> generations = new Stack<Generation>();
+
+            generations.Push(new Generation
+            {
+                Age = 0,
+                Parent = rules.StartingField
+            });
+
+            Generation current;
+            Playground next;
+            Generation nextGeneration;
+            while (generations.Count > 0)
+            {
+                current = generations.Pop();
+
+                current.Children = new Playground[rules.ValidMoves.Count];
+                for (int i = 0; i < current.Children.Length; ++i)
+                {
+                    next = current.Parent.ApplyMove(rules.ValidMoves[i]);
+
+                    if (tree.TryGetValue(next, out nextGeneration))
+                        current.Children[i] = nextGeneration.Parent;
+                    else if (next.Rows.Any(r => r < 0))
+                        current.Children[i] = null;
+                    else
+                    {
+                        current.Children[i] = next;
+                        generations.Push(new Generation
+                        {
+                            Age = current.Age + 1,
+                            Parent = next
+                        });
+                    }
+                }
+
+                tree[current.Parent] = current;
+            }
+
+            return tree;
+        }
+
+        private struct Generation
+        {
+            public int Age;
+            public Playground Parent;
+            public Playground[] Children;
+
+            public override string ToString()
+            {
+                return $"{Parent}->{string.Join(", ", Children.Select(c => c is null ? "X" : c.ToString()))}";
+            }
+        }
+
+        private struct MoveChances
+        {
+            public float[] WinChances;
+            public float[] LooseChances;
+
+            public override string ToString()
+            {
+                return $"Win: {string.Join("|", WinChances)}; Loose: {string.Join("|", LooseChances)}";
+            }
+        }
+    }
 }
