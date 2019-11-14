@@ -5,7 +5,7 @@ using System.Linq;
 
 namespace NIM
 {
-    public class Playground:IEquatable<Playground>
+    public class Playground : IEquatable<Playground>
     {
         public ReadOnlyCollection<int> Rows { get; }
 
@@ -21,14 +21,35 @@ namespace NIM
             Rows = Array.AsReadOnly(rows.ToArray());
         }
 
+        private Playground(int[] rows)
+        {
+            Rows = Array.AsReadOnly(rows);
+        }
+
         public Playground ApplyMove(Move move)
         {
             return new Playground(Rows.Select((s, i) => s - move.ChangesPerRow[i]));
         }
 
+        public bool TryApplyValidMove(Move move, out Playground newPlayground)
+        {
+            newPlayground = null;
+            int[] resultRows = new int[Rows.Count];
+            for (int i = 0; i < Rows.Count; ++i)
+            {
+                resultRows[i] = Rows[i] - move[i];
+                if (resultRows[i] < 0)
+                    return false;
+            }
+
+            newPlayground = new Playground(resultRows);
+
+            return true;
+        }
+
         public override string ToString()
         {
-            return $"Field: {string.Join(", ",Rows)}";
+            return $"Field: {string.Join(", ", Rows)}";
         }
 
         public bool Equals(Playground other)

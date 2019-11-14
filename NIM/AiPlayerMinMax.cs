@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Data;
 using System.Linq;
 
 namespace NIM
@@ -243,69 +244,138 @@ namespace NIM
 
         public void Generate()
         {
-            Dictionary<Playground, Generation> generateTree = GenerateTree(Rules);
+            Dictionary<Playground, Node> tree = GenerateTree(Rules, out List<Playground> leafs);
+
+            Dictionary<Playground, MoveChances> chances = new Dictionary<Playground, MoveChances>();
+            Queue<Node> nodeQueue = new Queue<Node>();
+            HashSet<Playground> inQueue = new HashSet<Playground>();
+            foreach (Playground leaf in leafs)
+            {
+                nodeQueue.Enqueue(tree[leaf]);
+                inQueue.Add(leaf);
+            }
+
+            MoveChances none = new MoveChances(Rules.PlayerCount);
+
+            Node currentNode;
+            MoveChances[] childChances = new MoveChances[Rules.ValidMoves.Count];
+            Playground playground;
+            bool canEvaluate;
+            while (nodeQueue.Count > 0)
+            {
+                currentNode = nodeQueue.Dequeue();
+
+                canEvaluate = true;
+                for (int i = 0; i < currentNode.Children.Length; ++i)
+                {
+                    playground = currentNode.Children[i];
+
+                    if (playground is null)
+                        childChances[i] = none;
+                    else if (!chances.TryGetValue(playground, out childChances[i]))
+                    {
+                        canEvaluate = false;
+                        break;
+                    }
+                }
+
+                if (!canEvaluate)
+                {
+                    nodeQueue.Enqueue(currentNode);
+                    continue;
+                }
+
+                chances[currentNode.Current] = none;
+
+                for (int i = 0; i < currentNode.Parents.Length; ++i)
+                {
+                    playground = currentNode.Parents[i];
+
+                    if (playground is null)
+                        continue;
+
+                    if (inQueue.Contains(playground))
+                        continue;
+
+                    nodeQueue.Enqueue(tree[playground]);
+                    inQueue.Add(playground);
+                }
+            }
         }
 
-        private static Dictionary<Playground, Generation> GenerateTree(Rules rules)
+        private static Dictionary<Playground, Node> GenerateTree(Rules rules, out List<Playground> leafs)
         {
-            Dictionary<Playground, Generation> tree = new Dictionary<Playground, Generation>();
-            Stack<Generation> generations = new Stack<Generation>();
+            Dictionary<Playground, Node> tree = new Dictionary<Playground, Node>();
+            Stack<Node> generations = new Stack<Node>();
 
-            generations.Push(new Generation
-            {
-                Age = 0,
-                Parent = rules.StartingField
-            });
+            generations.Push(new Node(rules.StartingField, rules.ValidMoves.Count));
 
-            Generation current;
+            leafs = new List<Playground>();
+            Node current;
             Playground next;
-            Generation nextGeneration;
+            Node nextGeneration;
+            int childrenCount;
             while (generations.Count > 0)
             {
                 current = generations.Pop();
 
-                current.Children = new Playground[rules.ValidMoves.Count];
+                childrenCount = 0;
                 for (int i = 0; i < current.Children.Length; ++i)
                 {
-                    next = current.Parent.ApplyMove(rules.ValidMoves[i]);
-
-                    if (tree.TryGetValue(next, out nextGeneration))
-                        current.Children[i] = nextGeneration.Parent;
-                    else if (next.Rows.Any(r => r < 0))
-                        current.Children[i] = null;
-                    else
+                    if (current.Current.TryApplyValidMove(rules.ValidMoves[i], out next))
                     {
-                        current.Children[i] = next;
-                        generations.Push(new Generation
+                        ++childrenCount;
+                        if (tree.TryGetValue(next, out nextGeneration))
                         {
-                            Age = current.Age + 1,
-                            Parent = next
-                        });
+                            next = nextGeneration.Current;
+                            nextGeneration.Parents[i] = current.Current;
+                        }
+                        else
+                        {
+                            generations.Push(new Node(next, rules.ValidMoves.Count) { Parents = { [i] = current.Current } });
+                        }
                     }
-                }
 
-                tree[current.Parent] = current;
+                    current.Children[i] = next;
+                }
+                if (childrenCount == 0)
+                    leafs.Add(current.Current);
+
+                tree[current.Current] = current;
             }
 
             return tree;
         }
 
-        private struct Generation
+        private struct Node
         {
-            public int Age;
-            public Playground Parent;
+            public Playground[] Parents;
+            public Playground Current;
             public Playground[] Children;
+
+            public Node(Playground playground, int moveCount)
+            {
+                Current = playground;
+                Parents = new Playground[moveCount];
+                Children = new Playground[moveCount];
+            }
 
             public override string ToString()
             {
-                return $"{Parent}->{string.Join(", ", Children.Select(c => c is null ? "X" : c.ToString()))}";
+                return $"{Current}, {Parents.Count(p => !(p is null))} Parent(s), {Children.Count(c => !(c is null))} Child(ren)";
             }
         }
 
         private struct MoveChances
         {
-            public float[] WinChances;
-            public float[] LooseChances;
+            public readonly float[] WinChances;
+            public readonly float[] LooseChances;
+
+            public MoveChances(int playerCount)
+            {
+                WinChances = new float[playerCount];
+                LooseChances = new float[playerCount];
+            }
 
             public override string ToString()
             {

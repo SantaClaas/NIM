@@ -395,6 +395,7 @@ namespace NimTests
         [Test]
         public void TestAiResources()
         {
+            //GamePlan gamePlan = new GamePlan(Rules.Build(new[] { 2,2}).AddSingleRowRules(1,5).Players(4).LastMoveWins().Create());
             GamePlan gamePlan = new GamePlan(Rules.Build(new[] { 2,2,8,5,10,4}).AddSingleRowRules(1,5).Players(4).LastMoveWins().Create());
             gamePlan.Generate();
         }
