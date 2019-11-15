@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Data;
+using System.Globalization;
 using System.Linq;
 
 namespace NIM
@@ -10,7 +9,7 @@ namespace NIM
     {
         private readonly Random _random;
 
-        private PlayerNode _gameTree;
+        private GamePlan _gamePlan;
 
         private readonly float _difficulty;
 
@@ -39,7 +38,8 @@ namespace NIM
         /// <param name="rules">The rules to initialize the player with. Pre-loads the decision tree</param>
         public AiPlayerMinMax(string name, float difficulty, Rules rules) : this(name, difficulty)
         {
-            _gameTree = PlayerNode.CalcGameTree(rules);
+            _gamePlan = new GamePlan(rules);
+            _gamePlan.Generate();
         }
 
         /// <summary>
@@ -50,7 +50,7 @@ namespace NIM
         /// <param name="teacher">An existing AI Player to copy the decision tree from</param>
         public AiPlayerMinMax(string name, float difficulty, AiPlayerMinMax teacher) : this(name, difficulty)
         {
-            _gameTree = teacher._gameTree;
+            _gamePlan = teacher._gamePlan;
         }
 
         public override string ToString()
@@ -61,172 +61,22 @@ namespace NIM
         /// <inheritdoc cref="Player.DecideNextMove"/>
         public override Move DecideNextMove(Rules rules, Playground playground)
         {
-            if (_gameTree is null || rules != _gameTree.MoveNode.Rules)
-                _gameTree = PlayerNode.CalcGameTree(rules);
-
-            List<PlayerNode> entryPoints = _gameTree.Find(n => n.MoveNode.Playground.Equals(playground));
+            if (_gamePlan is null || rules != _gamePlan.Rules)
+            {
+                _gamePlan = new GamePlan(rules);
+                _gamePlan.Generate();
+            }
 
             Dictionary<Move, float> chances = new Dictionary<Move, float>();
 
-            foreach (PlayerNode node in entryPoints)
-            {
-                foreach (KeyValuePair<Move, PlayerNode> choice in node.Children)
-                {
-                    float chance = choice.Value.Evaluate(node.Player, _difficulty < 0);
-
-                    if (!chances.ContainsKey(choice.Key))
-                    {
-                        chances[choice.Key] = chance;
-                        continue;
-                    }
-
-                    if (chances[choice.Key] < chance)
-                        chances[choice.Key] = chance;
-                }
-            }
+            List<Tuple<Move, float, float>> tuples = _gamePlan.GetChances(playground);
 
             float weight = Math.Abs(_difficulty);
-            foreach (Move move in chances.Keys.ToList())
-                chances[move] = (float)_random.NextDouble() * (1f - weight) + chances[move] * weight;
+            foreach ((Move move, float winChance, float looseChance) in tuples)
+                chances[move] = (float)_random.NextDouble() * (1f - weight) + (_difficulty < 0 ? looseChance : winChance) * weight;
 
             List<KeyValuePair<Move, float>> keyValuePairs = chances.OrderBy(p => p.Value).ThenBy(p => p.Key.ChangesPerRow.Sum()).ToList();
             return keyValuePairs.Last().Key;
-        }
-    }
-
-    internal class PlayerNode
-    {
-        public int Player { get; }
-
-        public MoveNode MoveNode { get; }
-
-        public ReadOnlyDictionary<Move, PlayerNode> Children { get; }
-
-        private readonly Dictionary<Move, PlayerNode> _children;
-
-        private PlayerNode(int player, MoveNode moveNode)
-        {
-            Player = player;
-            MoveNode = moveNode;
-            _children = new Dictionary<Move, PlayerNode>();
-            Children = new ReadOnlyDictionary<Move, PlayerNode>(_children);
-        }
-
-        private void CalcNextGen()
-        {
-            foreach (KeyValuePair<Move, MoveNode> movePair in MoveNode.Children)
-            {
-                PlayerNode child = new PlayerNode(
-                    (Player + 1) % MoveNode.Rules.PlayerCount,
-                    movePair.Value
-                    );
-
-                _children.Add(movePair.Key, child);
-
-                child.CalcNextGen();
-            }
-        }
-
-        public static PlayerNode CalcGameTree(Rules rules)
-        {
-            MoveNode moveTree = MoveNode.CalcGameTree(rules);
-
-            PlayerNode root = new PlayerNode(
-                0,
-                moveTree
-            );
-
-            root.CalcNextGen();
-
-            return root;
-        }
-
-        private void AddIfMatch(Func<PlayerNode, bool> filter, List<PlayerNode> matches)
-        {
-            if (filter(this))
-                matches.Add(this);
-
-            foreach (PlayerNode child in _children.Values)
-                child.AddIfMatch(filter, matches);
-        }
-
-        public List<PlayerNode> Find(Func<PlayerNode, bool> filter)
-        {
-            List<PlayerNode> matches = new List<PlayerNode>();
-            AddIfMatch(filter, matches);
-            return matches;
-        }
-
-        public float Evaluate(int player, bool invertCondition)
-        {
-            if (_children.Count == 0)
-                return (MoveNode.Rules.LastMoveWins ^ invertCondition) ^ (Player + (MoveNode.Rules.PlayerCount - 1)) % MoveNode.Rules.PlayerCount != player
-                    ? 1f
-                    : 0f;
-
-            List<float> childEvaluations = _children.Values.Select(n => n.Evaluate(player, invertCondition)).ToList();
-
-            if (Player == player && childEvaluations.Contains(1f))
-                return 1f;
-
-            return childEvaluations.Average();
-        }
-    }
-
-    internal class MoveNode
-    {
-        public Rules Rules { get; }
-
-        public Playground Playground { get; }
-
-        public ReadOnlyDictionary<Move, MoveNode> Children { get; }
-
-        private readonly Dictionary<Move, MoveNode> _children;
-
-        private MoveNode(Rules rules, Playground playground)
-        {
-            Rules = rules;
-            Playground = playground;
-            _children = new Dictionary<Move, MoveNode>();
-            Children = new ReadOnlyDictionary<Move, MoveNode>(_children);
-        }
-
-        private void CalcNextGen(Dictionary<Playground, MoveNode> existingNodes)
-        {
-            foreach (Move move in Rules.GetValidMoves(Playground))
-            {
-                Playground nextPlayground = Playground.ApplyMove(move);
-
-                if (existingNodes.ContainsKey(nextPlayground))
-                {
-                    _children.Add(move, existingNodes[nextPlayground]);
-                    continue;
-                }
-
-
-                MoveNode child = new MoveNode(Rules, nextPlayground);
-                _children.Add(move, child);
-                existingNodes.Add(nextPlayground, child);
-                child.CalcNextGen(existingNodes);
-            }
-        }
-
-        public static MoveNode CalcGameTree(Rules rules)
-        {
-            MoveNode root = new MoveNode(
-                rules,
-                rules.StartingField
-            );
-
-            Dictionary<Playground, MoveNode> existingNodes = new Dictionary<Playground, MoveNode>
-            {
-                {root.Playground, root}
-            };
-
-
-            root.CalcNextGen(existingNodes);
-
-            return root;
         }
     }
 
@@ -234,19 +84,40 @@ namespace NIM
     {
         public Rules Rules { get; }
 
-        private readonly Dictionary<Playground, List<Tuple<int, float, float>>> _chances;
+        private readonly Dictionary<Playground, MoveChancesPlayground> _chances;
 
         public GamePlan(Rules rules)
         {
+            if (rules.PlayerCount < 2)
+                throw new ArgumentException("Cannot create GamePlan for less than two players");
+
             Rules = rules;
-            _chances = new Dictionary<Playground, List<Tuple<int, float, float>>>();
+            _chances = new Dictionary<Playground, MoveChancesPlayground>();
+        }
+
+        public List<Tuple<Move, float, float>> GetChances(Playground current)
+        {
+            List<Tuple<Move, float, float>> chances = new List<Tuple<Move, float, float>>();
+
+            if (_chances.TryGetValue(current, out MoveChancesPlayground moveChances))
+            {
+                for (int i = 0; i < Rules.ValidMoves.Count; ++i)
+                {
+                    if (moveChances.WinChances[i] < 0f)
+                        continue;
+
+                    chances.Add(new Tuple<Move, float, float>(Rules.ValidMoves[i], moveChances.WinChances[i], moveChances.LooseChances[i]));
+                }
+            }
+
+            return chances;
         }
 
         public void Generate()
         {
-            Dictionary<Playground, Node> tree = GenerateTree(Rules, out List<Node> leafs);
+            List<Node> leafs = GenerateTree(Rules);
 
-            Dictionary<Playground, MoveChances> chances = new Dictionary<Playground, MoveChances>();
+            Dictionary<Playground, MoveChancesPlayerTimeline> chances = new Dictionary<Playground, MoveChancesPlayerTimeline>();
             Queue<Node> nodeQueue = new Queue<Node>();
             HashSet<Node> inQueue = new HashSet<Node>();
             foreach (Node leaf in leafs)
@@ -255,16 +126,24 @@ namespace NIM
                 inQueue.Add(leaf);
             }
 
-            MoveChances none = new MoveChances(Rules.PlayerCount);
+            MoveChancesPlayerTimeline none = new MoveChancesPlayerTimeline(0);
 
             Node currentNode;
-            MoveChances[] childChances = new MoveChances[Rules.ValidMoves.Count];
+            MoveChancesPlayerTimeline[] childChances = new MoveChancesPlayerTimeline[Rules.ValidMoves.Count];
             Node node;
             bool canEvaluate;
+            int childPlayerIndex;
+            MoveChancesPlayerTimeline currentChances;
+            int childCount;
+            float tempChance;
+            bool guaranteedWin;
+            bool guaranteedLoss;
+            MoveChancesPlayground moveChancesPlayground;
             while (nodeQueue.Count > 0)
             {
                 currentNode = nodeQueue.Dequeue();
 
+                childCount = 0;
                 canEvaluate = true;
                 for (int i = 0; i < currentNode.Children.Length; ++i)
                 {
@@ -277,6 +156,10 @@ namespace NIM
                         canEvaluate = false;
                         break;
                     }
+                    else
+                    {
+                        ++childCount;
+                    }
                 }
 
                 if (!canEvaluate)
@@ -285,7 +168,71 @@ namespace NIM
                     continue;
                 }
 
-                chances[currentNode.Current] = none;
+                currentChances = new MoveChancesPlayerTimeline(Rules.PlayerCount);
+
+                if (childCount > 0)
+                {
+                    guaranteedWin = false;
+                    guaranteedLoss = false;
+                    moveChancesPlayground = new MoveChancesPlayground(Rules.ValidMoves.Count);
+
+                    for (int c = 0; c < childChances.Length; ++c)
+                    {
+                        if (childChances[c].Equals(none))
+                        {
+                            moveChancesPlayground.WinChances[c] = float.MinValue;
+                            moveChancesPlayground.LooseChances[c] = float.MinValue;
+                            continue;
+                        }
+
+                        tempChance = childChances[c].WinChances[1];
+                        if (tempChance >= 1f)
+                            guaranteedWin = true;
+                        currentChances.WinChances[0] += tempChance;
+                        moveChancesPlayground.WinChances[c] = tempChance;
+
+                        tempChance = childChances[c].LooseChances[1];
+                        if (tempChance >= 1f)
+                            guaranteedLoss = true;
+                        currentChances.LooseChances[0] += tempChance;
+                        moveChancesPlayground.LooseChances[c] = tempChance;
+
+                        for (int p = 1; p < Rules.PlayerCount; ++p)
+                        {
+                            childPlayerIndex = (p + 1) % Rules.PlayerCount;
+                            currentChances.WinChances[p] += childChances[c].WinChances[childPlayerIndex];
+                            currentChances.LooseChances[p] += childChances[c].LooseChances[childPlayerIndex];
+                        }
+                    }
+
+                    if (guaranteedWin)
+                        currentChances.WinChances[0] = 1f;
+                    else
+                        currentChances.WinChances[0] /= childCount;
+
+                    if (guaranteedLoss)
+                        currentChances.LooseChances[0] = 1f;
+                    else
+                        currentChances.LooseChances[0] /= childCount;
+
+                    for (int p = 1; p < Rules.PlayerCount; ++p)
+                    {
+                        currentChances.WinChances[p] /= childCount;
+                        currentChances.LooseChances[p] /= childCount;
+                    }
+
+                    _chances[currentNode.Current] = moveChancesPlayground;
+                }
+                else
+                {
+                    for (int p = 0; p < Rules.PlayerCount; ++p)
+                    {
+                        currentChances.WinChances[p] = Rules.LastMoveWins ^ (p != 1) ? 1f : 0f;
+                        currentChances.LooseChances[p] = Rules.LastMoveWins ^ (p != 1) ? 0f : 1f;
+                    }
+                }
+
+                chances[currentNode.Current] = currentChances;
 
                 for (int i = 0; i < currentNode.Parents.Length; ++i)
                 {
@@ -303,9 +250,9 @@ namespace NIM
             }
         }
 
-        private static Dictionary<Playground, Node> GenerateTree(Rules rules, out List<Node> leafs)
+        private static List<Node> GenerateTree(Rules rules)
         {
-            leafs = new List<Node>();
+            List<Node> leafs = new List<Node>();
 
             Dictionary<Playground, Node> tree = new Dictionary<Playground, Node>();
             Stack<Node> generations = new Stack<Node>();
@@ -315,8 +262,6 @@ namespace NIM
             Node none = new Node(null, rules.ValidMoves.Count);
 
             Node current;
-            Playground next;
-            Node nextGeneration;
             int childrenCount;
             while (generations.Count > 0)
             {
@@ -326,12 +271,11 @@ namespace NIM
                 for (int i = 0; i < current.Children.Length; ++i)
                 {
 
-                    if (current.Current.TryApplyValidMove(rules.ValidMoves[i], out next))
+                    if (current.Current.TryApplyValidMove(rules.ValidMoves[i], out Playground next))
                     {
                         ++childrenCount;
-                        if (tree.TryGetValue(next, out nextGeneration))
+                        if (tree.TryGetValue(next, out Node nextGeneration))
                         {
-                            next = nextGeneration.Current;
                             nextGeneration.Parents[i] = current;
                             current.Children[i] = nextGeneration;
                         }
@@ -352,14 +296,14 @@ namespace NIM
                 tree[current.Current] = current;
             }
 
-            return tree;
+            return leafs;
         }
 
         private struct Node
         {
-            public Node[] Parents;
-            public Playground Current;
-            public Node[] Children;
+            public readonly Node[] Parents;
+            public readonly Playground Current;
+            public readonly Node[] Children;
 
             public Node(Playground playground, int moveCount)
             {
@@ -374,12 +318,12 @@ namespace NIM
             }
         }
 
-        private struct MoveChances
+        private struct MoveChancesPlayerTimeline
         {
             public readonly float[] WinChances;
             public readonly float[] LooseChances;
 
-            public MoveChances(int playerCount)
+            public MoveChancesPlayerTimeline(int playerCount)
             {
                 WinChances = new float[playerCount];
                 LooseChances = new float[playerCount];
@@ -387,7 +331,24 @@ namespace NIM
 
             public override string ToString()
             {
-                return $"Win: {string.Join("|", WinChances)}; Loose: {string.Join("|", LooseChances)}";
+                return $"Win: {string.Join("|", WinChances.Select(f => f < 0 ? "-" : Math.Round(f, 2).ToString(CultureInfo.InvariantCulture)))}; Loose: {string.Join("|", LooseChances.Select(f => f < 0 ? "-" : Math.Round(f, 2).ToString(CultureInfo.InvariantCulture)))}";
+            }
+        }
+
+        private struct MoveChancesPlayground
+        {
+            public readonly float[] WinChances;
+            public readonly float[] LooseChances;
+
+            public MoveChancesPlayground(int validMoves)
+            {
+                WinChances = new float[validMoves];
+                LooseChances = new float[validMoves];
+            }
+
+            public override string ToString()
+            {
+                return $"Win: {string.Join("|", WinChances.Select(f => f < 0 ? "-" : Math.Round(f, 2).ToString(CultureInfo.InvariantCulture)))}; Loose: {string.Join("|", LooseChances.Select(f => f < 0 ? "-" : Math.Round(f, 2).ToString(CultureInfo.InvariantCulture)))}";
             }
         }
     }
