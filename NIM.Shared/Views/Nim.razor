@@ -71,6 +71,15 @@
         if (ViewModel.ExitOnInitialized) navigationManager.NavigateTo("/");
         await InvokeAsync(StateHasChanged);
     }
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if(firstRender && ViewModel.IsPlayerAi)
+        {
+            await Task.Delay(1000);
+            ViewModel.EndTurn();
+        }
+
+    }
 
     public void Dispose()
     {

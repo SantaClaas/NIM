@@ -15,7 +15,7 @@ namespace NIM.Shared.ViewModels
         public bool ExitOnInitialized { get => exitOnInitialized; private set { if (exitOnInitialized = value) Notify?.Invoke(); } }
         public string Skin => settings.Skin;
         public string CurrentPlayerName => gameState?.Game?.CurrentPlayer?.Name ?? string.Empty;
-
+        public bool IsPlayerAi => gameState?.Game?.CurrentPlayer is AiPlayerMinMax;
         public event Func<Task> Notify;
 
         private readonly Models.GameState gameState;
