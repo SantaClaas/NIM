@@ -48,6 +48,19 @@ namespace NIM.Shared.ViewModels
             if (gameState.Game.CurrentPlayer is AiPlayerMinMax)
                 return false;
 
+            if (gameState.Rules.ValidMoves.Any(move => move.ChangesPerRow[row] > CurrentMove[row])
+                // 
+                && gameState.Rules.ValidMoves.Where(move => move.ChangesPerRow[row] > CurrentMove[row]).Select(move =>
+                {
+                    int[] copy = CurrentMove.ToArray();
+                    copy[row] = move.ChangesPerRow[row];
+                    return copy;
+                })
+                .Any(prediction => gameState.Rules.IsMoveValid(new Move(prediction), gameState.Game.CurrentPlayground)))
+            {       
+                return true;
+            }
+
             int[] futureMove = CurrentMove.Clone() as int[];
             ++futureMove[row];
 
@@ -60,6 +73,9 @@ namespace NIM.Shared.ViewModels
             // if the ai is currently playing the user can not use the add button
             if (gameState.Game.CurrentPlayer is AiPlayerMinMax)
                 return false;
+
+            if (CurrentMove[row] > 0)
+                return true;
 
             int[] futureMove = CurrentMove.Clone() as int[];
             --futureMove[row];
