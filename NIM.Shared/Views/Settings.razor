@@ -1,5 +1,4 @@
-﻿@using ViewModels
-@inject Models.GameState gameState
+﻿@inject ViewModels.SettingsViewModel ViewModel
 @page "/settings"
 <div class="row justify-content-center" @onclick="@(() => ClickCounter++)">
     <div class="col-auto">
@@ -107,7 +106,6 @@
     </div>
 </div>
 @code {
-    public SettingsViewModel ViewModel { get; set; }
     private int clickCounter;
     private int ClickCounter
     {
@@ -118,17 +116,12 @@
             {
                 StateHasChanged();
             }
-            if(value > 9)
+            if (value > 9)
             {
                 return;
             }
             clickCounter = value;
         }
-    }
-    protected override void OnInitialized()
-    {
-        ViewModel = new SettingsViewModel(gameState);
-
     }
 
 }

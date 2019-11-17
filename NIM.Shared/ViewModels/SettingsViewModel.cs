@@ -30,21 +30,16 @@ namespace NIM.Shared.ViewModels
         private readonly Models.GameState state;
         private int changesPerRow = 3;
         private Models.GameState GameState { get; set; }
+        private Settings Settings { get; set; }
         public string Skin { get; set; }
-        public SettingsViewModel(Models.GameState gameState)
+        public SettingsViewModel(Models.GameState gameState,Settings settings)
         {
             GameState = gameState;
-            Skin = gameState.Skin;
-            gameState.Settings ??= new Settings
-            {
-                Rows = new List<int> { 1, 2, 3, 4 },
-                LastMoveWins = true,
-                ChangesPerRow = 3,
-            };
+            Settings = settings;
             state = gameState;
-            Rows = gameState.Settings.Rows;
-            RowsCount = gameState.Settings.Rows.Count;
-            LastMoveWins = gameState.Settings.LastMoveWins;
+            Rows = settings.Rows;
+            RowsCount = settings.Rows.Count;
+            LastMoveWins = settings.LastMoveWins;
         }
 
         public void OnSave()
@@ -61,7 +56,7 @@ namespace NIM.Shared.ViewModels
                 b.AddSingleRowRules(1, ChangesPerRow);
             }
             state.RulesBuilder = b;
-            GameState.Skin = Skin;
+            Settings.Skin = Skin;
         }
     }
 }

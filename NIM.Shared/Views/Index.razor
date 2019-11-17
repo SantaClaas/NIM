@@ -87,7 +87,6 @@
     void OnSubmit()
     {
         gameState.Players = PossiblePlayers.Select((p, i) => p.IsAiPlayer ? new AiPlayerMinMax(p.Name ?? $"Player {i + 1} (Computer)", p.DifficultyAdvancedAi) : new Human(p.Name ?? $"Player {i + 1}") as Player).ToList();
-        gameState.SummaryTakes = gameState.Players.ToDictionary(p => p, p => 0);
         Rules rules = gameState.RulesBuilder?.Players(gameState.Players.Count).Create() ?? Rules.Default;
         gameState.Game = new Game(rules, gameState.Players);
         navigationManager.NavigateTo("nim");
