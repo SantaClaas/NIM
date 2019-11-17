@@ -4,6 +4,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using System.Collections.Generic;
+using NIM.Shared;
 namespace NIM.Server
 {
     public class Startup
@@ -22,16 +23,7 @@ namespace NIM.Server
             services.AddRazorPages();
             services.AddServerSideBlazor();
 
-            services.AddSingleton<Shared.Models.GameState>();
-            services.AddSingleton(_ => new Shared.Models.Settings
-            {
-                Rows = new List<int> { 1, 2, 3, 4 },
-                LastMoveWins = true,
-                ChangesPerRow = 3,
-                Skin = "Torch.png",
-            });
-            services.AddSingleton<Shared.ViewModels.SettingsViewModel>();
-            services.AddTransient<Shared.ViewModels.NimViewModel>();
+            services.ConfigureNimServices();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

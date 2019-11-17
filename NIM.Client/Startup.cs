@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Components.Builder;
 using Microsoft.Extensions.DependencyInjection;
-using System.Collections.Generic;
+using NIM.Shared;
 
 namespace NIM.Client
 {
@@ -8,16 +8,7 @@ namespace NIM.Client
     {
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddSingleton<Shared.Models.GameState>();
-            services.AddSingleton(_ => new Shared.Models.Settings
-            {
-                Rows = new List<int> { 1, 2, 3, 4 },
-                LastMoveWins = true,
-                ChangesPerRow = 3,
-                Skin = "Torch.png",
-            });
-            services.AddSingleton<Shared.ViewModels.SettingsViewModel>();
-            services.AddTransient<Shared.ViewModels.NimViewModel>();
+            services.ConfigureNimServices();
         }
 
         public void Configure(IComponentsApplicationBuilder app)
