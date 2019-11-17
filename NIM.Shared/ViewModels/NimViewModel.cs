@@ -132,6 +132,7 @@ namespace NIM.Shared.ViewModels
             //Array.Copy(gameState.Game.CurrentPlayground.Rows, State);
             if (gameState.Game.CurrentPlayer is AiPlayerMinMax)
                 await EndTurn();
+            await Notify.Invoke();
         }
 
         async Task ReplayAiMove()
