@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Components;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -11,7 +12,7 @@ namespace NIM.Shared.ViewModels
         public List<Player> Players => gameState.Players;
         public int[] Field { get; private set; }
         public Dictionary<Player, int> SummaryTakes { get; private set; }
-        public bool ExitOnInitialized { get => exitOnInitialized; private set { if (exitOnInitialized = value) Notify.Invoke(); } }
+        public bool ExitOnInitialized { get => exitOnInitialized; private set { if (exitOnInitialized = value) Notify?.Invoke(); } }
         public string Skin => settings.Skin;
         public string CurrentPlayerName => gameState?.Game?.CurrentPlayer?.Name ?? string.Empty;
 
@@ -21,8 +22,17 @@ namespace NIM.Shared.ViewModels
         private readonly Models.Settings settings;
         private bool exitOnInitialized;
 
-        public NimViewModel(Models.GameState gameState, Models.Settings settings)
+        public NimViewModel(NavigationManager navigationManager, Models.GameState gameState, Models.Settings settings)
         {
+            if (!gameState.IsInitialized || gameState.Game == null || gameState.Players == null || gameState.Rules == null)
+            {
+                /* Expected exception here
+                 * see https://github.com/aspnet/AspNetCore/issues/14464#issuecomment-540512447
+                 * to signal redirection needs to happen
+                 */
+                navigationManager.NavigateTo("/");
+                return;
+            }
             this.gameState = gameState;
             this.settings = settings;
             // if game is not initialized leave
