@@ -118,7 +118,6 @@ namespace NIM.Shared.ViewModels
 
         async Task ReplayAiMove()
         {
-            // was last player ai
             if (!(gameState.Game.CurrentPlayer is AiPlayerMinMax))
                 return;
             for (int i = 0; i < gameState.Game.LastMove.ChangesPerRow.Count; ++i)
