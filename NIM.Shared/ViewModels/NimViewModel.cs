@@ -34,6 +34,9 @@ namespace NIM.Shared.ViewModels
 
         public bool CanTake(int row)
         {
+            // if the ai is currently playing the user can not use the take button
+            if (gameState.Game.CurrentPlayer is AiPlayerMinMax)
+                return false;
             int[] futureMove = CurrentMove.Clone() as int[];
             ++futureMove[row];
 
@@ -43,6 +46,9 @@ namespace NIM.Shared.ViewModels
 
         public bool CanAdd(int row)
         {
+            // if the ai is currently playing the user can not use the add button
+            if (gameState.Game.CurrentPlayer is AiPlayerMinMax)
+                return false;
             int[] futureMove = CurrentMove.Clone() as int[];
             --futureMove[row];
 

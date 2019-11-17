@@ -26,8 +26,8 @@
                     </div>
                 </div>
                 <div class="col-auto">
-                    <button class="btn btn-info my-5" @onclick="async () => await ViewModel.TakeAsync(index)" disabled="@(!ViewModel.CanTake(index))"><i class="oi oi-minus" /></button>
-                    <button class="btn btn-info" @onclick="async () => await ViewModel.AddAsync(index)" disabled="@(!ViewModel.CanAdd(index))"><i class="oi oi-plus" /></button>
+                    <button class="btn btn-info my-5" @onclick="async () => await Take(index)" disabled="@(!ViewModel.CanTake(index))"><i class="oi oi-minus" /></button>
+                    <button class="btn btn-info" @onclick="async () => await Add(index)" disabled="@(!ViewModel.CanAdd(index))"><i class="oi oi-plus" /></button>
                 </div>
             </div>
         }
@@ -75,6 +75,17 @@
     public void Dispose()
     {
         ViewModel.Notify -= OnNotify;
+    }
+
+    private async Task Take(int row)
+    {
+        if (!ViewModel.CanTake(row)) return;
+        await ViewModel.TakeAsync(row);
+    }
+    private async Task Add(int row)
+    {
+        if (!ViewModel.CanAdd(row)) return;
+        await ViewModel.AddAsync(row);
     }
 
 }
