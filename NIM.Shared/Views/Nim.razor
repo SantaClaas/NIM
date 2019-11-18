@@ -1,0 +1,100 @@
+﻿@page "/nim"
+@implements IDisposable
+@inject NavigationManager navigationManager
+@inject ViewModels.NimViewModel ViewModel
+<div class="row justify-content-center">
+    <div class="col">
+        <h1>Nim game</h1>
+        <h2>Current player: @ViewModel.CurrentPlayerName</h2>
+    </div>
+</div>
+
+<div class="row ">
+    <div class="col-sm-12 col-lg-8">
+        @for (int i = 0; i < ViewModel.Field.Length; ++i)
+        {
+            int index = i;
+        <div class="row justify-content-lg-between">
+            <div class="col-sm-4 col-lg-8">
+                <div class="row flex-shrink-0">
+                    @for (int j = 0; j < ViewModel.Field[i]; ++j)
+                        {
+                    <div class="col-2 p-2 no-gutters">
+                        <img src="@ViewModel.Skin" class="img-fluid" />
+                    </div>
+                        }
+                </div>
+            </div>
+            <div class="col-auto">
+                <button class="btn btn-info my-5" @onclick="async () => await Take(index)" disabled="@(!ViewModel.CanTake(index))"><i class="oi oi-minus" /></button>
+                <button class="btn btn-info" @onclick="async () => await Add(index)" disabled="@(!ViewModel.CanAdd(index))"><i class="oi oi-plus" /></button>
+            </div>
+        </div>
+        }
+    </div>
+    <div class="col-sm-12 col-lg-4 flex-">
+        <h3>Matches taken</h3>
+        @for (int i = 0; i < ViewModel.Players.Count; ++i)
+        {
+        <div class="row">
+            <div class="col">
+                <h6>@ViewModel.Players[i].Name :</h6>
+            </div>
+        </div>
+        <div class="row">
+            @for (int j = 0; j < ViewModel.SummaryTakes[ViewModel.Players[i]]; ++j)
+                {
+
+            <div class="col-3 no-gutters">
+                <img src="@ViewModel.Skin" class="img-fluid" />
+            </div>
+                }
+        </div>
+        }
+    </div>
+</div>
+
+<div class="row justify-content-end">
+    <div class="col-auto">
+        <button class="btn btn-info" @onclick="ViewModel.EndTurn" disabled="@(!ViewModel.CanEnd)">End turn</button>
+    </div>
+</div>
+@code {
+    protected override void OnInitialized()
+    {
+        if (ViewModel.ExitOnInitialized)
+            navigationManager.NavigateTo("/");
+        ViewModel.Notify += OnNotify;
+    }
+    public async Task OnNotify()
+    {
+        if (ViewModel.ExitOnInitialized) navigationManager.NavigateTo("/");
+        await InvokeAsync(StateHasChanged);
+    }
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if(firstRender && ViewModel.IsPlayerAi)
+        {
+            await Task.Delay(1000);
+            await ViewModel.EndTurn();
+        }
+
+    }
+
+    public void Dispose()
+    {
+        ViewModel.Notify -= OnNotify;
+    }
+
+    private async Task Take(int row)
+    {
+        if (!ViewModel.CanTake(row)) return;
+        await ViewModel.TakeAsync(row);
+    }
+    private async Task Add(int row)
+    {
+        if (!ViewModel.CanAdd(row)) return;
+        await ViewModel.AddAsync(row);
+    }
+
+}

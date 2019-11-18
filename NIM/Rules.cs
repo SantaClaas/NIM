@@ -131,6 +131,42 @@ namespace NIM
                 return this;
             }
 
+            public Builder ParseMoveRules(string rules)
+            {
+                if (rules is null)
+                    throw new ArgumentNullException(nameof(rules));
+
+                foreach (string moveSet in rules.Split(new[] { ';' }, StringSplitOptions.RemoveEmptyEntries))
+                {
+                    string[] movePerRow = moveSet.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+
+                    Tuple<int, int>[] moves = new Tuple<int, int>[movePerRow.Length];
+                    for (int i = 0; i < movePerRow.Length; ++i)
+                    {
+                        int separator = movePerRow[i].IndexOf('-');
+                        if (separator < 0)
+                            separator = movePerRow[i].Length;
+
+                        if (!int.TryParse(movePerRow[i].Substring(0, separator), out int min))
+                            throw new Exception("Unable to parse rule");
+
+                        int max = min;
+                        if (separator < movePerRow[i].Length)
+                        {
+                            if (!int.TryParse(movePerRow[i].Substring(separator + 1, movePerRow[i].Length - separator - 1), out max))
+                                throw new Exception("Unable to parse rule");
+                        }
+
+                        moves[i] = new Tuple<int, int>(min, max);
+                    }
+
+                    foreach (int[] iterateMove in IterateMoves(moves))
+                        AddMultiRowRules(iterateMove);
+                }
+
+                return this;
+            }
+
             public Builder LastMoveWins()
             {
                 _lastMoveWins = true;
@@ -149,6 +185,30 @@ namespace NIM
                 return this;
             }
 
+            private List<int[]> IterateMoves(Tuple<int, int>[] ranges)
+            {
+                List<int[]> rows = new List<int[]>();
+
+                IterateMoves(ranges, 0, new int[ranges.Length], rows);
+
+                return rows;
+            }
+
+            private void IterateMoves(Tuple<int, int>[] ranges, int index, int[] row, List<int[]> moves)
+            {
+                if (index >= ranges.Length)
+                {
+                    moves.Add(row.ToArray());
+                    return;
+                }
+
+                for (int i = ranges[index].Item1; i <= ranges[index].Item2; ++i)
+                {
+                    row[index] = i;
+                    IterateMoves(ranges, index + 1, row, moves);
+                }
+            }
+
             private IEnumerable<IEnumerable<T>> Permutations<T>(IEnumerable<T> items)
             {
                 List<T> list = items.ToList();
@@ -156,10 +216,11 @@ namespace NIM
                     yield return list;
                 else
                 {
-                    foreach (T item in list)
+                    for (int i = 0; i < list.Count; ++i)
                     {
-                        foreach (IEnumerable<T> permutation in Permutations<T>(list.Where(i => !i.Equals(item))))
-                            yield return permutation.Prepend(item);
+                        int ic = i;
+                        foreach (IEnumerable<T> permutation in Permutations(list.Where((itm, idx) => idx != ic)))
+                            yield return permutation.Prepend(list[i]);
                     }
                 }
             }

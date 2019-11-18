@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 
 namespace NIM
 {
@@ -12,7 +11,18 @@ namespace NIM
             Name = name ?? throw new ArgumentNullException(nameof(name));
         }
 
+        /// <summary>
+        /// Get the next move based on the given rules and the current game state
+        /// </summary>
+        /// <param name="rules"></param>
+        /// <param name="playground"></param>
+        /// <returns></returns>
         public abstract Move DecideNextMove(Rules rules, Playground playground);
+
+        public override string ToString()
+        {
+            return $"Player {Name}";
+        }
 
         public bool Equals(Player other)
         {

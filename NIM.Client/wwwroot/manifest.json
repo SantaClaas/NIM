@@ -1,0 +1,16 @@
+{
+  "short_name": "NimGame",
+  "name": "Team MAC's NIM Game",
+  "icons": [
+    {
+      "src": "match.png",
+      "type": "image/png",
+      "sizes": "512x512"
+    }
+  ],
+  "start_url": "/",
+  "background_color": "#006B41",
+  "display": "standalone",
+  "scope": "/",
+  "theme_color": "#006B41"
+}
