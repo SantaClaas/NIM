@@ -14,5 +14,5 @@ To build download and install the [.Net Core 3 SDK](https://dot.net) and run the
 You will find the build server project in the new Releases directory with an executable to start it. 
 To successfully build the client side project you will need to download the preview version of .NET Core 3.1
 
-Have fun!
+Have fun!  
 <small>SataClaas 18th November of 2019</small>
