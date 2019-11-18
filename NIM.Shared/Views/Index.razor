@@ -1,0 +1,68 @@
+﻿@page "/"
+@page "/index"
+@using Models
+@using ViewModels
+@inject NavigationManager navigationManager
+@inject GameState gameState
+@inject IndexViewModel ViewModel
+@if (gameState.IsInitialized && gameState.Game.State == NIM.GameState.GameOver)
+{
+    <div class="row justify-content-center">
+        <div class="col col-lg-3 col-md-5 col-sm-10">
+            <div class="alert alert-success">
+                Congratulations @(string.Join(",", gameState.Game.GetWinningPlayers().Select(p => p.Name))), you won!
+            </div>
+        </div>
+    </div>
+}
+
+<div class="row justify-content-center">
+    <h1>New Game</h1>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col col-lg-3 col-md-5 col-sm-10 justify-content-center">
+        <form>
+
+            @for (int i = 0; i < ViewModel.PossiblePlayers.Count; ++i)
+            {
+                int index = i;
+
+                <div class="form-group ">
+                    <label for="playerName @index">@($"Player {index + 1}"):</label>
+                    <input type="text" class="form-control" id="playerName @index" placeholder="@($"Player {index + 1}")" value="@ViewModel.PossiblePlayers[index].Name" @oninput="(e)=>ViewModel.OnInput(e,index)" />
+                    @if (!ViewModel.PossiblePlayers[index].IsNameValid)
+                    {
+                        <small class="text-danger">Sorry, this name has already been taken</small>
+                    }
+
+
+                    <div class="form-check">
+                        <input type="checkbox" class="form-check-input" id="checkIsAiPlayer @index" @bind="ViewModel.PossiblePlayers[index].IsAiPlayer" />
+                        <label class="form-check-label" for="checkIsAiPlayer @index">Ai Player</label>
+                    </div>
+
+                    @if (ViewModel.PossiblePlayers[index].IsAiPlayer)
+                    {
+                        <div class="form-control-range form-row">
+                            <div class="col-auto">
+                                <label for="aiLevel @index">Difficulty:</label>
+                            </div>
+                            <div class="col-1">
+                                <label>@ViewModel.PossiblePlayers[index].DifficultyAdvancedAi</label>
+                            </div>
+                            <div class="col-auto flex-fill">
+                                <input type="range" class="custom-range" id="aiLevel @index" min="-1" max="1" step="0.1" @bind="ViewModel.PossiblePlayers[index].DifficultyAdvancedAi" @bind:event="oninput" />
+                            </div>
+                        </div>
+                    }
+                </div>
+            }
+
+        </form>
+        <button class="btn btn-success" @onclick="ViewModel.AddNew">Add Player</button>
+        <button class="btn btn-danger" @onclick="ViewModel.RemoveLatest" disabled="@(ViewModel.PossiblePlayers.Count <= 2)">Remove Player</button>
+        <button class="btn btn-primary" @onclick="@ViewModel.OnSubmit" disabled="@(!ViewModel.CanSubmit)"><i class="oi oi-media-play" /> Start </button>
+        <a href="/settings" class="btn btn-secondary active"><i class="oi oi-cog" /></a>
+    </div>
+</div>
