@@ -1,5 +1,5 @@
 # NIM
-The NIM Game developed by [SantaClaas](https://github.com/SantaClaas), [WubbiConcepts](https://github.com/Wubbi) and [AnyaNein](https://github.com/AnyaNein) for a school project in class ITO1 2019 at [Kaufmännische Schulen Tecklenburger Land](https://kstlinfo.de/) 
+The NIM Game developed by [SantaClaas](https://github.com/SantaClaas), [WubbiConcepts](https://github.com/Wubbi) and [AnyaNein](https://github.com/AnyaNein) for a school project in class ITO1 2019 at [KaufmÃ¤nnische Schulen Tecklenburger Land](https://kstlinfo.de/) 
 > is a mathematical game of strategy in which two players take turns removing (i.e., nimming) objects from distinct heaps or piles.  
 > [Wikipedia](https://en.wikipedia.org/wiki/Nim) <small>(18th November 2019)</small>
     
@@ -13,3 +13,6 @@ Please be aware that clientside Blazor with WebAssembly is still in preview as o
 To build download and install the [.Net Core 3 SDK](https://dot.net) and run the build script on Windows.  
 You will find the build server project in the new Releases directory with an executable to start it. 
 To successfully build the client side project you will need to download the preview version of .NET Core 3.1
+
+Have fun!
+<small>SataClaas 18th November of 2019</small>
