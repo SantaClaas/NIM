@@ -15,4 +15,4 @@ You will find the build server project in the new Releases directory with an exe
 To successfully build the client side project you will need to download the preview version of .NET Core 3.1
 
 Have fun!  
-<small>SataClaas 18th November of 2019</small>
+<small>SataClaas 18th of November 2019</small>
