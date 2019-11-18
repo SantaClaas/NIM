@@ -5,6 +5,7 @@ The NIM Game developed by [SantaClaas](https://github.com/SantaClaas), [WubbiCon
     
 The project consists of a .NET Standard 2.0 library containing the game logic, a Blazor component shared library for ui logic and elements for both the client and serverside projects.  
 It is written in C# using ASP.NET Core 3 with serverside Blazor and preview versions of .Net Core 3.1 for the Clientside Blazor WebAssembly project
+You can find documentation for the school presentation at [/documentation](https://github.com/SantaClaas/NIM/tree/master/documentation)  
 ### Demo
 You can find a demo for the serverside project at [teammacnim.azurewebsites.com](https://teammacnim.azurewebsites.com)  
 And the clientside project at [nimclient.azurewebsites.com](https://nimclient.azurewebsites.com)  
