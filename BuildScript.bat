@@ -1,0 +1,45 @@
+dotnet publish ./NIM.Server/NIM.Server.csproj -c Release -o Releases\Server\win-x64 -r win-x64 --self-contained true
+dotnet publish ./NIM.Server/NIM.Server.csproj -c Release -o Releases\Server\win-x86 -r win-x86 --self-contained true
+dotnet publish ./NIM.Server/NIM.Server.csproj -c Release -o Releases\Server\win-arm -r win-arm --self-contained true
+dotnet publish ./NIM.Server/NIM.Server.csproj -c Release -o Releases\Server\win-arm64 -r win-arm64 --self-contained true
+dotnet publish ./NIM.Server/NIM.Server.csproj -c Release -o Releases\Server\win7-x64 -r win7-x64 --self-contained true
+dotnet publish ./NIM.Server/NIM.Server.csproj -c Release -o Releases\Server\win7-x86 -r win7-x86 --self-contained true
+dotnet publish ./NIM.Server/NIM.Server.csproj -c Release -o Releases\Server\win81-x64 -r win81-x64 --self-contained true
+dotnet publish ./NIM.Server/NIM.Server.csproj -c Release -o Releases\Server\win81-x86 -r win81-x86 --self-contained true
+dotnet publish ./NIM.Server/NIM.Server.csproj -c Release -o Releases\Server\win81-arm -r win81-arm --self-contained true
+dotnet publish ./NIM.Server/NIM.Server.csproj -c Release -o Releases\Server\win10-x64 -r win10-x64 --self-contained true
+dotnet publish ./NIM.Server/NIM.Server.csproj -c Release -o Releases\Server\win10-x86 -r win10-x86 --self-contained true
+dotnet publish ./NIM.Server/NIM.Server.csproj -c Release -o Releases\Server\win10-arm -r win10-arm --self-contained true
+dotnet publish ./NIM.Server/NIM.Server.csproj -c Release -o Releases\Server\win10-arm64 -r win10-arm64 --self-contained true
+
+dotnet publish ./NIM.Server/NIM.Server.csproj -c Release -o Releases\Server\linux-x64 -r linux-x64 --self-contained true
+dotnet publish ./NIM.Server/NIM.Server.csproj -c Release -o Releases\Server\linux-musl-x64 -r linux-musl-x64 --self-contained true
+dotnet publish ./NIM.Server/NIM.Server.csproj -c Release -o Releases\Server\linux-arm -r linux-arm --self-contained true
+dotnet publish ./NIM.Server/NIM.Server.csproj -c Release -o Releases\Server\rhel-x64 -r rhel-x64 --self-contained true
+dotnet publish ./NIM.Server/NIM.Server.csproj -c Release -o Releases\Server\rhel.6-x64 -r rhel.6-x64 --self-contained true
+dotnet publish ./NIM.Server/NIM.Server.csproj -c Release -o Releases\Server\tizen -r tizen --self-contained true
+dotnet publish ./NIM.Server/NIM.Server.csproj -c Release -o Releases\Server\tizen.4.0.0 -r tizen.4.0.0 --self-contained true
+dotnet publish ./NIM.Server/NIM.Server.csproj -c Release -o Releases\Server\tizen.5.0.0 -r tizen.5.0.0 --self-contained true
+
+dotnet publish ./NIM.Client/NIM.Client.csproj -c Release -o Releases\Client\win-x64 -r win-x64 --self-contained true
+dotnet publish ./NIM.Client/NIM.Client.csproj -c Release -o Releases\Client\win-x86 -r win-x86 --self-contained true
+dotnet publish ./NIM.Client/NIM.Client.csproj -c Release -o Releases\Client\win-arm -r win-arm --self-contained true
+dotnet publish ./NIM.Client/NIM.Client.csproj -c Release -o Releases\Client\win-arm64 -r win-arm64 --self-contained true
+dotnet publish ./NIM.Client/NIM.Client.csproj -c Release -o Releases\Client\win7-x64 -r win7-x64 --self-contained true
+dotnet publish ./NIM.Client/NIM.Client.csproj -c Release -o Releases\Client\win7-x86 -r win7-x86 --self-contained true
+dotnet publish ./NIM.Client/NIM.Client.csproj -c Release -o Releases\Client\win81-x64 -r win81-x64 --self-contained true
+dotnet publish ./NIM.Client/NIM.Client.csproj -c Release -o Releases\Client\win81-x86 -r win81-x86 --self-contained true
+dotnet publish ./NIM.Client/NIM.Client.csproj -c Release -o Releases\Client\win81-arm -r win81-arm --self-contained true
+dotnet publish ./NIM.Client/NIM.Client.csproj -c Release -o Releases\Client\win10-x64 -r win10-x64 --self-contained true
+dotnet publish ./NIM.Client/NIM.Client.csproj -c Release -o Releases\Client\win10-x86 -r win10-x86 --self-contained true
+dotnet publish ./NIM.Client/NIM.Client.csproj -c Release -o Releases\Client\win10-arm -r win10-arm --self-contained true
+dotnet publish ./NIM.Client/NIM.Client.csproj -c Release -o Releases\Client\win10-arm64 -r win10-arm64 --self-contained true
+
+dotnet publish ./NIM.Client/NIM.Client.csproj -c Release -o Releases\Client\linux-x64 -r linux-x64 --self-contained true
+dotnet publish ./NIM.Client/NIM.Client.csproj -c Release -o Releases\Client\linux-musl-x64 -r linux-musl-x64 --self-contained true
+dotnet publish ./NIM.Client/NIM.Client.csproj -c Release -o Releases\Client\linux-arm -r linux-arm --self-contained true
+dotnet publish ./NIM.Client/NIM.Client.csproj -c Release -o Releases\Client\rhel-x64 -r rhel-x64 --self-contained true
+dotnet publish ./NIM.Client/NIM.Client.csproj -c Release -o Releases\Client\rhel.6-x64 -r rhel.6-x64 --self-contained true
+dotnet publish ./NIM.Client/NIM.Client.csproj -c Release -o Releases\Client\tizen -r tizen --self-contained true
+dotnet publish ./NIM.Client/NIM.Client.csproj -c Release -o Releases\Client\tizen.4.0.0 -r tizen.4.0.0 --self-contained true
+dotnet publish ./NIM.Client/NIM.Client.csproj -c Release -o Releases\Client\tizen.5.0.0 -r tizen.5.0.0 --self-contained true
